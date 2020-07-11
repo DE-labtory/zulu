@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 # goimports test
