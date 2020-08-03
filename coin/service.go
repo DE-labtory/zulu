@@ -6,6 +6,6 @@ import (
 )
 
 type Service interface {
-	DeriveAccount(signer signer.Signer) types.Account
-	Transfer(signer signer.Signer, to string, amount uint) types.Transaction
+	DeriveAccount(signer signer.Signer) (types.Account, error)
+	Transfer(signer signer.Signer, to string, amount string) (types.Transaction, error)
 }
