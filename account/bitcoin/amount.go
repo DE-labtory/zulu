@@ -32,10 +32,12 @@ func NewAmount(i int) Amount {
 	return Amount(int64(i) * int64(math.Pow10(int(Decimal))))
 }
 
+// TODO: implement me
 func (a Amount) Add(i Amount) Amount {
 	return 0
 }
 
+// TODO: implement me
 func (a Amount) Sub(i Amount) Amount {
 	return 0
 }
