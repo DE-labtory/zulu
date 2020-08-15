@@ -1,4 +1,4 @@
-package btc
+package bitcoin
 
 import (
 	"math"

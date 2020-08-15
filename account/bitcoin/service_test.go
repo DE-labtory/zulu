@@ -1,11 +1,11 @@
-package btc_test
+package bitcoin_test
 
 import (
 	"testing"
 
 	"github.com/btcsuite/btcutil"
 
-	"github.com/DE-labtory/zulu/coin/btc"
+	"github.com/DE-labtory/zulu/account/bitcoin"
 
 	"github.com/DE-labtory/zulu/types"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -50,7 +50,7 @@ func NewHDPrivateKey() *hdkeychain.ExtendedKey {
 func TestBitcoinType_DeriveAccount(t *testing.T) {
 	signer := NewHDKeySigner(NewHDPrivateKey())
 
-	w, _ := btc.WalletService(types.Testnet)
+	w := bitcoin.WalletService(types.Testnet)
 
 	result, err := w.DeriveAccount(signer)
 	if err != nil {
@@ -78,7 +78,7 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
 	signer := NewHDKeySigner(NewHDPrivateKey())
 
-	w, _ := btc.WalletService(types.Testnet)
+	w := bitcoin.WalletService(types.Testnet)
 
 	account1, err := w.DeriveAccount(signer)
 	if err != nil {
