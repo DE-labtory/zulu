@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	ErrUnknownCoin = errors.New("unknown account error")
+	ErrUnknownAccountService = errors.New("unknown account service error")
 )
 
 type Resolver struct {
@@ -21,7 +21,7 @@ func NewResolver() *Resolver {
 func (r *Resolver) Resolve(id string) (Service, error) {
 	service := r.services[id]
 	if service == nil {
-		return nil, ErrUnknownCoin
+		return nil, ErrUnknownAccountService
 	}
 	return service, nil
 }
