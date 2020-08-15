@@ -11,7 +11,7 @@ type bitcoinType struct {
 	node    node.Adapter
 }
 
-func WalletService(network types.Network) *bitcoinType {
+func NewService(network types.Network) *bitcoinType {
 	return &bitcoinType{
 		network: network,
 		node:    node.NewAdapter(network),
