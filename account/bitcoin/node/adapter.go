@@ -22,7 +22,7 @@ type adapter struct {
 
 func NewAdapter(network types.Network) *adapter {
 	return &adapter{
-		httpClient: NewHttpClient(chaincfg.Supplier[network].NodeUrl),
+		httpClient: newHttpClient(chaincfg.Supplier[network].NodeUrl),
 	}
 }
 
@@ -50,7 +50,7 @@ type httpClient struct {
 	baseUrl string
 }
 
-func NewHttpClient(baseUrl string) *httpClient {
+func newHttpClient(baseUrl string) *httpClient {
 	return &httpClient{
 		Client:  http.DefaultClient,
 		baseUrl: baseUrl,

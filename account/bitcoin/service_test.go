@@ -3,56 +3,24 @@ package bitcoin_test
 import (
 	"testing"
 
+	"github.com/DE-labtory/zulu/keychain"
+
 	"github.com/btcsuite/btcutil"
 
 	"github.com/DE-labtory/zulu/account/bitcoin"
 
 	"github.com/DE-labtory/zulu/types"
 	"github.com/btcsuite/btcd/chaincfg"
-
-	"github.com/btcsuite/btcutil/hdkeychain"
 )
 
-type HDKeySigner struct {
-	pvtKey *hdkeychain.ExtendedKey
-}
-
-func NewHDKeySigner(pvtKey *hdkeychain.ExtendedKey) *HDKeySigner {
-	if !pvtKey.IsPrivate() {
-		panic("provided private key is not private")
-	}
-	return &HDKeySigner{
-		pvtKey: pvtKey,
-	}
-}
-
-func (s *HDKeySigner) PrivKey() []byte {
-	return []byte("tprv8ZgxMBicQKsPeC1AToPuxY8zTgM26qLuqp3tTWwzZpqj5azR9NAoJiAqZeCNm3tudA5pzbAx3Jb4gLzJzCfsSvSnymLRmmUuk7ji1SQxAhs")
-}
-
-func (s *HDKeySigner) PubKey() []byte {
-	return []byte{}
-}
-
-func NewHDPrivateKey() *hdkeychain.ExtendedKey {
-	seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
-	if err != nil {
-		panic(err)
-	}
-	// Generate a new master node using the seed.
-	key, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
-	if err != nil {
-		panic(err)
-	}
-	return key
+var testKey = keychain.Key{
+	PrivateKey: []byte("tprv8ZgxMBicQKsPeC1AToPuxY8zTgM26qLuqp3tTWwzZpqj5azR9NAoJiAqZeCNm3tudA5pzbAx3Jb4gLzJzCfsSvSnymLRmmUuk7ji1SQxAhs"),
 }
 
 func TestBitcoinType_DeriveAccount(t *testing.T) {
-	signer := NewHDKeySigner(NewHDPrivateKey())
-
 	w := bitcoin.WalletService(types.Testnet)
 
-	result, err := w.DeriveAccount(signer)
+	result, err := w.DeriveAccount(testKey)
 	if err != nil {
 		t.Fatalf("error when creating account: %s", err)
 	}
@@ -76,15 +44,13 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 }
 
 func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
-	signer := NewHDKeySigner(NewHDPrivateKey())
-
 	w := bitcoin.WalletService(types.Testnet)
 
-	account1, err := w.DeriveAccount(signer)
+	account1, err := w.DeriveAccount(testKey)
 	if err != nil {
 		t.Fatalf("error when creating account1: %s", err)
 	}
-	account2, err := w.DeriveAccount(signer)
+	account2, err := w.DeriveAccount(testKey)
 	if err != nil {
 		t.Fatalf("error when creating account1: %s", err)
 	}
