@@ -5,7 +5,7 @@ import (
 
 	"github.com/btcsuite/btcutil"
 
-	"github.com/DE-labtory/zulu/wallet/btc"
+	"github.com/DE-labtory/zulu/coin/btc"
 
 	"github.com/DE-labtory/zulu/types"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -26,21 +26,12 @@ func NewHDKeySigner(pvtKey *hdkeychain.ExtendedKey) *HDKeySigner {
 	}
 }
 
-func (s *HDKeySigner) PrivKey() string {
-	seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
-	if err != nil {
-		panic(err)
-	}
-	// Generate a new master node using the seed.
-	key, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
-	if err != nil {
-		panic(err)
-	}
-	return key.String()
+func (s *HDKeySigner) PrivKey() []byte {
+	return []byte("tprv8ZgxMBicQKsPeC1AToPuxY8zTgM26qLuqp3tTWwzZpqj5azR9NAoJiAqZeCNm3tudA5pzbAx3Jb4gLzJzCfsSvSnymLRmmUuk7ji1SQxAhs")
 }
 
-func (s *HDKeySigner) PubKey() string {
-	return ""
+func (s *HDKeySigner) PubKey() []byte {
+	return []byte{}
 }
 
 func NewHDPrivateKey() *hdkeychain.ExtendedKey {
@@ -59,10 +50,8 @@ func NewHDPrivateKey() *hdkeychain.ExtendedKey {
 func TestBitcoinType_DeriveAccount(t *testing.T) {
 	signer := NewHDKeySigner(NewHDPrivateKey())
 
-	w, err := btc.WalletService(types.Testnet)
-	if err != nil {
-		t.Fatalf("error when creating wallet service: %s", err)
-	}
+	w, _ := btc.WalletService(types.Testnet)
+
 	result, err := w.DeriveAccount(signer)
 	if err != nil {
 		t.Fatalf("error when creating account: %s", err)
@@ -83,5 +72,23 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 	}
 	if result.Balance != "0" {
 		t.Fatalf("expected balance is 0 but got: %s", result.Balance)
+	}
+}
+
+func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
+	signer := NewHDKeySigner(NewHDPrivateKey())
+
+	w, _ := btc.WalletService(types.Testnet)
+
+	account1, err := w.DeriveAccount(signer)
+	if err != nil {
+		t.Fatalf("error when creating account1: %s", err)
+	}
+	account2, err := w.DeriveAccount(signer)
+	if err != nil {
+		t.Fatalf("error when creating account1: %s", err)
+	}
+	if account1.Address != account2.Address {
+		t.Fatalf("error two accounts address is not equal: %s, %s", account1.Address, account2.Address)
 	}
 }

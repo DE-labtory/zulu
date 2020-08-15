@@ -1,4 +1,4 @@
-package wallet
+package coin
 
 import (
 	"github.com/DE-labtory/zulu/types"
