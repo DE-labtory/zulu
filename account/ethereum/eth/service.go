@@ -5,9 +5,9 @@ import (
 	"github.com/DE-labtory/zulu/types"
 )
 
-type Service struct {}
+type Service struct{}
 
-func NewService() *Service{
+func NewService() *Service {
 	return nil
 }
 
