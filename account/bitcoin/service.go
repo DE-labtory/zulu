@@ -8,12 +8,13 @@ import (
 
 type bitcoinType struct {
 	network types.Network
-	adapter node.Adapter
+	node    node.Adapter
 }
 
 func WalletService(network types.Network) *bitcoinType {
 	return &bitcoinType{
 		network: network,
+		node:    node.NewAdapter(network),
 	}
 }
 
@@ -40,7 +41,7 @@ func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (type
 		return types.Transaction{}, nil
 	}
 	// utxo
-	_, err = b.adapter.ListUTXO(acc.Address)
+	_, err = b.node.ListUTXO(acc.Address)
 	if err != nil {
 		return types.Transaction{}, nil
 	}

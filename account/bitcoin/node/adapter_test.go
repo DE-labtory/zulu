@@ -32,6 +32,6 @@ func TestAdapter_EstimateFees(t *testing.T) {
 		t.Fatalf("error when get estimates: %s", err)
 	}
 	if estimate == 0 {
-		t.Fatalf("expected fee estimates is NOT 0: %s", err)
+		t.Fatalf("expected fee estimates is NOT 0, but got %f", estimate)
 	}
 }
