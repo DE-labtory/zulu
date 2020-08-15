@@ -1,4 +1,4 @@
-package _interface
+package interfaces
 
 import "github.com/DE-labtory/zulu/types"
 

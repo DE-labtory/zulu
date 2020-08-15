@@ -1,3 +1,3 @@
-package _interface
+package interfaces
 
 type ListCoinsResponse = []GetCoinResponse

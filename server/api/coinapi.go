@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"github.com/DE-labtory/zulu/interfaces"
 
 	"github.com/DE-labtory/zulu/account"
 	"github.com/DE-labtory/zulu/types"
@@ -23,7 +24,9 @@ func (c *CoinApi) GetCoins(context *gin.Context) {
 	for _, s := range c.resolver.GetAllServices() {
 		coins = append(coins, s.GetInfo())
 	}
-	context.JSON(200, coins)
+
+	var response interfaces.ListCoinsResponse = coins
+	context.JSON(200, response)
 }
 
 func (c *CoinApi) GetCoin(context *gin.Context) {
@@ -41,5 +44,7 @@ func (c *CoinApi) GetCoin(context *gin.Context) {
 		badrequestError(context, err)
 		return
 	}
-	context.JSON(200, service.GetInfo())
+
+	var response interfaces.GetCoinResponse = service.GetInfo()
+	context.JSON(200, response)
 }
