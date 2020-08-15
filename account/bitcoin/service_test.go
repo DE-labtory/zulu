@@ -18,7 +18,7 @@ var testKey = keychain.Key{
 }
 
 func TestBitcoinType_DeriveAccount(t *testing.T) {
-	w := bitcoin.WalletService(types.Testnet)
+	w := bitcoin.NewService(types.Testnet)
 
 	result, err := w.DeriveAccount(testKey)
 	if err != nil {
@@ -44,7 +44,7 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 }
 
 func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
-	w := bitcoin.WalletService(types.Testnet)
+	w := bitcoin.NewService(types.Testnet)
 
 	account1, err := w.DeriveAccount(testKey)
 	if err != nil {
@@ -60,7 +60,7 @@ func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
 }
 
 func TestBitcoinType_GetInfo(t *testing.T) {
-	w := bitcoin.WalletService(types.Testnet)
+	w := bitcoin.NewService(types.Testnet)
 	info := w.GetInfo()
 
 	if info.Id != "1" {

@@ -13,8 +13,9 @@ type Resolver struct {
 }
 
 func NewResolver() *Resolver {
+	services := make(map[string]Service)
 	return &Resolver{
-		services: make(map[string]Service),
+		services: services,
 	}
 }
 
