@@ -5,10 +5,11 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
-	"math/big"
 )
 
 var transferMethodID = []byte{0xa9, 0x05, 0x9c, 0xbb} // 0xa9059cbb
@@ -90,4 +91,3 @@ func RLPEncode(data interface{}) ([]byte, error) {
 
 	return buffer.Bytes(), nil
 }
-

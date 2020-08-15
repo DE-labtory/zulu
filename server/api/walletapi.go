@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+
 	"github.com/DE-labtory/zulu/account"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
@@ -23,7 +24,7 @@ func NewWallet(resolver *account.Resolver) *WalletApi {
 func (w *WalletApi) CreateWallet(context *gin.Context) {
 	key := w.generator.Generate()
 	accounts, err := w.getAccounts(key)
-	if err != nil{
+	if err != nil {
 		internalServerError(context, errors.New("failed to derive account"))
 		return
 	}
@@ -44,18 +45,18 @@ func (w *WalletApi) GetWallet(context *gin.Context) {
 
 	key := w.store.Get(request.ID)
 	accounts, err := w.getAccounts(key)
-	if err != nil{
+	if err != nil {
 		internalServerError(context, errors.New("failed to derive account"))
 		return
 	}
 	context.JSON(200, accounts)
 }
 
-func (w *WalletApi) getAccounts(key keychain.Key) ([]types.Account, error){
+func (w *WalletApi) getAccounts(key keychain.Key) ([]types.Account, error) {
 	var accounts []types.Account
 	for _, s := range w.resolver.GetAllServices() {
 		a, err := s.DeriveAccount(key)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		accounts = append(accounts, a)

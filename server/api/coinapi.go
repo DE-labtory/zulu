@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+
 	"github.com/DE-labtory/zulu/account"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/gin-gonic/gin"
@@ -36,7 +37,7 @@ func (c *CoinApi) GetCoin(context *gin.Context) {
 	}
 
 	service, err := c.resolver.Resolve(request.ID)
-	if err != nil{
+	if err != nil {
 		badrequestError(context, err)
 		return
 	}

@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"encoding/hex"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
 	"strings"
 	"testing"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 var defaultAddress = "0x33ffe564A61d48408b5b8Db0c112e7Cc79d023a5"
 
 func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {
-	privateKey, err := crypto.HexToECDSA("9ca9700d14db691586ace71b25fe9973f1d2e0dd874e02e3d2d994ea7594f3e6");
+	privateKey, err := crypto.HexToECDSA("9ca9700d14db691586ace71b25fe9973f1d2e0dd874e02e3d2d994ea7594f3e6")
 	if err != nil {
 		return nil, err
 	}
