@@ -1,8 +1,8 @@
 package bitcoin
 
 import (
-	"github.com/DE-labtory/zulu/account"
 	"github.com/DE-labtory/zulu/account/bitcoin/node"
+	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 )
 
@@ -17,8 +17,8 @@ func WalletService(network types.Network) *bitcoinType {
 	}
 }
 
-func (b *bitcoinType) DeriveAccount(signer account.Signer) (types.Account, error) {
-	privkey, err := GetPrivKey(signer)
+func (b *bitcoinType) DeriveAccount(key keychain.Key) (types.Account, error) {
+	privkey, err := GetPrivKey(key)
 	if err != nil {
 		return types.Account{}, err
 	}
@@ -33,8 +33,9 @@ func (b *bitcoinType) DeriveAccount(signer account.Signer) (types.Account, error
 	}, nil
 }
 
-func (b *bitcoinType) Transfer(signer account.Signer, to string, amount string) (types.Transaction, error) {
-	acc, err := b.DeriveAccount(signer)
+// TODO: implement me
+func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
+	acc, err := b.DeriveAccount(key)
 	if err != nil {
 		return types.Transaction{}, nil
 	}
@@ -43,12 +44,9 @@ func (b *bitcoinType) Transfer(signer account.Signer, to string, amount string) 
 	if err != nil {
 		return types.Transaction{}, nil
 	}
-
-	// fee calculate
-
-	// utxo create 2
-
-	// sign ~ send
-
 	return types.Transaction{}, nil
+}
+
+func (b *bitcoinType) GetInfo() types.Coin {
+	return Coin(b.network)
 }

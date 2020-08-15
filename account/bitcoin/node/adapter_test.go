@@ -1,15 +1,16 @@
 package node_test
 
 import (
-	"fmt"
 	"testing"
+
+	"github.com/DE-labtory/zulu/types"
 
 	"github.com/DE-labtory/zulu/account/bitcoin/node"
 )
 
-func TestHttpClient_ListUtxo(t *testing.T) {
-	c := node.NewHttpClient("https://blockstream.info/testnet/api")
-	utxos, err := c.ListUTXO("muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY")
+func TestAdapter_ListUTXO(t *testing.T) {
+	a := node.NewAdapter(types.Testnet)
+	utxos, err := a.ListUTXO("muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY")
 	if err != nil {
 		t.Fatalf("error when list utxos: %s", err)
 	}
@@ -24,11 +25,13 @@ func TestHttpClient_ListUtxo(t *testing.T) {
 	}
 }
 
-func TestHttpClient_GetFeeEstimates(t *testing.T) {
-	c := node.NewHttpClient("https://blockstream.info/testnet/api")
-	estimates, err := c.GetFeeEstimates()
+func TestAdapter_EstimateFees(t *testing.T) {
+	a := node.NewAdapter(types.Testnet)
+	estimate, err := a.EstimateFees()
 	if err != nil {
 		t.Fatalf("error when get estimates: %s", err)
 	}
-	fmt.Println(estimates)
+	if estimate == 0 {
+		t.Fatalf("expected fee estimates is NOT 0: %s", err)
+	}
 }
