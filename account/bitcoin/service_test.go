@@ -58,3 +58,24 @@ func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
 		t.Fatalf("error two accounts address is not equal: %s, %s", account1.Address, account2.Address)
 	}
 }
+
+func TestBitcoinType_GetInfo(t *testing.T) {
+	w := bitcoin.WalletService(types.Testnet)
+	info := w.GetInfo()
+
+	if info.Id != "1" {
+		t.Fatalf("expected ID is 1 but got: %s", info.Id)
+	}
+	if info.Blockchain.Platform != types.Bitcoin {
+		t.Fatalf("expected Platform is Bitcoin but got: %s", info.Blockchain.Platform)
+	}
+	if info.Blockchain.Network != types.Testnet {
+		t.Fatalf("expected Platform is Testnet but got: %s", info.Blockchain.Network)
+	}
+	if info.Symbol != types.Btc {
+		t.Fatalf("expected Platform is Btc but got: %s", info.Symbol)
+	}
+	if info.Decimals != bitcoin.Decimal.Int() {
+		t.Fatalf("expected decimal is 8 but got: %d", info.Decimals)
+	}
+}
