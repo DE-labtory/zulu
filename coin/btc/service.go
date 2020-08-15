@@ -1,8 +1,8 @@
 package btc
 
 import (
+	"github.com/DE-labtory/zulu/coin"
 	"github.com/DE-labtory/zulu/types"
-	"github.com/DE-labtory/zulu/wallet"
 )
 
 type bitcoinType struct {
@@ -15,7 +15,7 @@ func WalletService(network types.Network) (*bitcoinType, error) {
 	}, nil
 }
 
-func (b *bitcoinType) DeriveAccount(signer wallet.Signer) (types.Account, error) {
+func (b *bitcoinType) DeriveAccount(signer coin.Signer) (types.Account, error) {
 	privkey, err := GetPrivKey(signer)
 	if err != nil {
 		return types.Account{}, err
@@ -31,6 +31,6 @@ func (b *bitcoinType) DeriveAccount(signer wallet.Signer) (types.Account, error)
 	}, nil
 }
 
-func (b *bitcoinType) Transfer(signer wallet.Signer, to string, amount string) (types.Transaction, error) {
+func (b *bitcoinType) Transfer(signer coin.Signer, to string, amount string) (types.Transaction, error) {
 	return types.Transaction{}, nil
 }

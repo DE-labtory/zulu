@@ -3,8 +3,8 @@ package btc
 import (
 	"fmt"
 
+	"github.com/DE-labtory/zulu/coin"
 	"github.com/DE-labtory/zulu/types"
-	"github.com/DE-labtory/zulu/wallet"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -14,8 +14,8 @@ type PrivKey struct {
 	*hdkeychain.ExtendedKey
 }
 
-func GetPrivKey(signer wallet.Signer) (*PrivKey, error) {
-	extKey, err := hdkeychain.NewKeyFromString(signer.PrivKey())
+func GetPrivKey(signer coin.Signer) (*PrivKey, error) {
+	extKey, err := hdkeychain.NewKeyFromString(string(signer.PrivKey()))
 	if err != nil {
 		return nil, err
 	}
