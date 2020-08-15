@@ -1,4 +1,4 @@
-package coin
+package account
 
 type Signer interface {
 	PubKey() []byte
