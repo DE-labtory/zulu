@@ -1,9 +1,10 @@
 package mem
 
 import (
+	"testing"
+
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/go-playground/assert/v2"
-	"testing"
 )
 
 var tests = []struct {
@@ -127,7 +128,7 @@ var tests = []struct {
 		isValid: false,
 	},
 	{
-		name: "invalid pbulic key length",
+		name: "invalid public key length",
 		key: keychain.Key{
 			ID: "34762cb4592cbe44f993032bb1656b201aae9b9a9b730f8f1c37e5c597cbd8cc",
 			PrivateKey: []byte{

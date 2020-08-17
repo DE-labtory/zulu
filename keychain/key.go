@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/hex"
 	"errors"
-	"github.com/ethereum/go-ethereum/crypto"
 	"strings"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // Key is essentially a public and private key pair based on ECDSA which uses the secp256k1 curve
