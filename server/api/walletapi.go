@@ -29,7 +29,10 @@ func (w *WalletApi) CreateWallet(context *gin.Context) {
 		return
 	}
 
-	w.store.Store(key)
+	if err := w.store.Store(key); err != nil {
+		internalServerError(context, errors.New("failed to store key"))
+		return
+	}
 	context.JSON(200, accounts)
 }
 
@@ -43,7 +46,12 @@ func (w *WalletApi) GetWallet(context *gin.Context) {
 		return
 	}
 
-	key := w.store.Get(request.ID)
+	key, err := w.store.Get(request.ID)
+	if err != nil {
+		internalServerError(context, errors.New("failed to read key"))
+		return
+	}
+
 	accounts, err := w.getAccounts(key)
 	if err != nil {
 		internalServerError(context, errors.New("failed to derive account"))
