@@ -1,6 +1,6 @@
 package keychain
 
 type Store interface {
-	Store(k Key)
-	Get(id string) Key
+	Store(k Key) error
+	Get(id string) (Key, error)
 }
