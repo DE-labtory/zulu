@@ -6,7 +6,6 @@ import (
 )
 
 type Deriver struct {
-
 }
 
 func (s *Deriver) DeriveAccount(key keychain.Key) (types.Account, error) {

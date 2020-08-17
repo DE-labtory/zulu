@@ -13,11 +13,7 @@ type Service struct {
 	address string
 }
 
-func NewService(
-	decimal int,
-	address string,
-) *Service {
-
+func NewService(decimal int, address string) *Service {
 	return &Service{
 		Decimal: decimal,
 		address: address,
@@ -26,6 +22,10 @@ func NewService(
 
 func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
 	return types.Transaction{}, nil
+}
+
+func (s *Service) GetInfo() types.Coin {
+	return types.Coin{}
 }
 
 func getTransferFunctionSignatrue() []byte {

@@ -4,6 +4,7 @@ import (
 	"crypto/ecdsa"
 	"github.com/DE-labtory/zulu/types"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
+	"math/big"
 )
 
 type AccountBuilder struct {
@@ -24,11 +25,11 @@ func NewTransactionBuilder(signer ethTypes.Signer) *TransactionBuilder {
 }
 
 func (t *TransactionBuilder) build(
-	nonce uint64,
-	gasPrice uint64,
-	gasLimit uint64,
+	nonce *big.Int,
+	gasPrice *big.Int,
+	gasLimit *big.Int,
 	toAddress string,
-	amount uint,
+	amount *big.Int,
 	payload []byte,
 	privKey *ecdsa.PrivateKey,
 ) string {
