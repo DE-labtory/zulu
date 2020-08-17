@@ -2,7 +2,7 @@ package erc20
 
 import (
 	"encoding/hex"
-	"github.com/DE-labtory/zulu/signer"
+	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
@@ -13,19 +13,18 @@ type Service struct {
 	address string
 }
 
-func NewService(decimal int, address string) *Service {
+func NewService(
+	decimal int,
+	address string,
+) *Service {
+
 	return &Service{
-		Decimal:decimal,
-		address:address,
+		Decimal: decimal,
+		address: address,
 	}
 }
 
-func (s *Service) DeriveAccount(signer signer.Signer) types.Account {
-	signer.PubKey()
-	return types.Account{}
-}
-
-func (s *Service) Transfer(signer signer.Signer, to string, amount string) (types.Transaction, error) {
+func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
 	return types.Transaction{}, nil
 }
 
