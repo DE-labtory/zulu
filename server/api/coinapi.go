@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+
 	"github.com/DE-labtory/zulu/interfaces"
 
 	"github.com/DE-labtory/zulu/account"
