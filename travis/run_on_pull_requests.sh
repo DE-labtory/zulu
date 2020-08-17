@@ -9,7 +9,7 @@ exit 1
 fi
 
 # run go test
-go test -v -mod=vendor ./...
+go test -v ./...
 
 if [ $? -ne 0 ]; then
 echo "go test fail" >&2
