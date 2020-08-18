@@ -2,7 +2,7 @@ package api
 
 import "github.com/gin-gonic/gin"
 
-func badrequestError(context *gin.Context, err error) {
+func badRequestError(context *gin.Context, err error) {
 	context.JSON(400, gin.H{"error": err.Error()})
 }
 

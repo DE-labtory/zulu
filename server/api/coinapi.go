@@ -36,13 +36,13 @@ func (c *CoinApi) GetCoin(context *gin.Context) {
 	}
 
 	if err := context.ShouldBindUri(&request); err != nil {
-		badrequestError(context, errors.New("path variable :id does not exists"))
+		badRequestError(context, errors.New("path variable :id does not exists"))
 		return
 	}
 
 	service, err := c.resolver.Resolve(request.ID)
 	if err != nil {
-		badrequestError(context, err)
+		badRequestError(context, err)
 		return
 	}
 
