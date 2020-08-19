@@ -6,17 +6,17 @@ import (
 	"github.com/DE-labtory/zulu/keychain"
 )
 
-type MemStore struct {
+type KeyStore struct {
 	keys map[string]keychain.Key
 }
 
-func NewMemStore() MemStore {
-	return MemStore{
+func NewKeyStore() KeyStore {
+	return KeyStore{
 		keys: make(map[string]keychain.Key),
 	}
 }
 
-func (ks *MemStore) Store(k keychain.Key) error {
+func (ks *KeyStore) Store(k keychain.Key) error {
 	if err := keychain.ValidateKey(k); err != nil {
 		return err
 	}
@@ -25,7 +25,7 @@ func (ks *MemStore) Store(k keychain.Key) error {
 	return nil
 }
 
-func (ks *MemStore) Get(id string) (keychain.Key, error) {
+func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 	k, ok := ks.keys[id]
 	if !ok {
 		return k, errors.New("key not found error")

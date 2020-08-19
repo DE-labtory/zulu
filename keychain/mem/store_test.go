@@ -153,7 +153,7 @@ var tests = []struct {
 }
 
 func TestStore(t *testing.T) {
-	ks := NewMemStore()
+	ks := NewKeyStore()
 
 	for _, test := range tests {
 		k := test.key
@@ -172,7 +172,7 @@ func TestStore(t *testing.T) {
 }
 
 func TestStoreKeyFromGenerator(t *testing.T) {
-	ks := NewMemStore()
+	ks := NewKeyStore()
 	g := keychain.NewKeyGenerator()
 
 	k := g.Generate()
@@ -190,7 +190,7 @@ func TestStoreKeyFromGenerator(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	ks := NewMemStore()
+	ks := NewKeyStore()
 
 	for _, test := range tests {
 		k := test.key
