@@ -54,3 +54,23 @@ func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 	// with no err
 	return k, nil
 }
+
+func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
+	keys := make([]keychain.Key, 0)
+	iter := ks.handle.GetIteratorWithPrefix()
+	for iter.Next() {
+		key := iter.Key()
+		rawData := iter.Value()
+
+		var k keychain.Key
+		err := json.Unmarshal(rawData, &k)
+		if err != nil {
+			logrus.Error("error while unmarshal key :" + string(key) + ", in level db key store")
+			continue
+		}
+
+		keys = append(keys, k)
+	}
+
+	return keys, nil
+}
