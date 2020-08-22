@@ -34,5 +34,14 @@ func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 }
 
 func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
-	panic("should implement")
+	var keys []keychain.Key
+
+	for _, v := range ks.keys {
+		keys = append(keys, v)
+	}
+	if len(keys) == 0 {
+		return nil, errors.New("key store is empty")
+	}
+
+	return keys, nil
 }
