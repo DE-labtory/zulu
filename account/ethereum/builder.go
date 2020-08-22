@@ -2,13 +2,15 @@ package ethereum
 
 import (
 	"encoding/hex"
-	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/crypto"
+
+	"log"
 
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
-	"log"
 )
 
 type AccountBuilder struct {

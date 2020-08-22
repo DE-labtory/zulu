@@ -2,10 +2,11 @@ package erc20
 
 import (
 	"crypto/ecdsa"
+	"testing"
+
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"testing"
 )
 
 func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {

@@ -1,25 +1,26 @@
 package ethereum
 
 import (
-	"github.com/DE-labtory/zulu/types"
 	"math/big"
+
+	"github.com/DE-labtory/zulu/types"
 )
 
 type Params struct {
-	NodeUrl string
-	ChainId *big.Int
+	NodeUrl  string
+	ChainId  *big.Int
 	GasLimit uint64
 }
 
 var (
 	MainnetParams = Params{
-		NodeUrl: "https://mainnet.infura.io",
-		ChainId: big.NewInt(1),
+		NodeUrl:  "https://mainnet.infura.io",
+		ChainId:  big.NewInt(1),
 		GasLimit: 23000,
 	}
 	RopstenParams = Params{
-		NodeUrl: "https://ropsten.infura.io",
-		ChainId: big.NewInt(3),
+		NodeUrl:  "https://ropsten.infura.io",
+		ChainId:  big.NewInt(3),
 		GasLimit: 23000,
 	}
 )
