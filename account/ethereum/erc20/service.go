@@ -41,7 +41,13 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 		return types.Transaction{}, err
 	}
 
-	payload, err := s.buildErc20TransferData(to, amount)
+	value, err := ethereum.ApplyDecimal(amount, s.decimal)
+	if err != nil {
+		return types.Transaction{}, nil
+	}
+
+	address := common.HexToAddress(to)
+	payload, err := s.buildErc20TransferData(&address, value)
 	if err != nil {
 		return types.Transaction{}, err
 	}
@@ -76,13 +82,9 @@ func getTransferFunctionSignatrue() []byte {
 	return []byte{0xa9, 0x05, 0x9c, 0xbb} // 0xa9059cbb
 }
 
-func (s *Service) buildErc20TransferData(to string, amount string) ([]byte, error) {
-	address := common.HexToAddress(to)
-	a := new(big.Int)
-	a.SetString(amount, 10)
-
-	paddedAddress := common.LeftPadBytes(address.Bytes(), 32)
-	paddedAmount := common.LeftPadBytes(a.Bytes(), 32)
+func (s *Service) buildErc20TransferData(to *common.Address, amount *big.Int) ([]byte, error) {
+	paddedAddress := common.LeftPadBytes(to.Bytes(), 32)
+	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 
 	var data []byte
 	data = append(data, getTransferFunctionSignatrue()...)

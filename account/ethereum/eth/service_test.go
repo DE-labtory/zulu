@@ -2,7 +2,6 @@ package eth
 
 import (
 	"crypto/ecdsa"
-	"fmt"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -30,10 +29,10 @@ func TestService_Transfer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tx, err := service.Transfer(key, "0x33ffe564A61d48408b5b8Db0c112e7Cc79d023a5", "1")
+	tx, err := service.Transfer(key, "0x33ffe564A61d48408b5b8Db0c112e7Cc79d023a5", "0.000001")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	fmt.Println(tx)
+	t.Logf("transaction hash %s", tx.TxHash)
 }
