@@ -2,9 +2,10 @@ package ethereum
 
 import (
 	"crypto/ecdsa"
+	"math/big"
+
 	"github.com/DE-labtory/zulu/types"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 )
 
 type AccountBuilder struct {
