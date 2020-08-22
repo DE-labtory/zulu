@@ -22,7 +22,10 @@ func NewWallet(resolver *account.Resolver) *WalletApi {
 }
 
 func (w *WalletApi) CreateWallet(context *gin.Context) {
-	key := w.generator.Generate()
+	key, err := w.generator.Generate()
+	if err != nil {
+		internalServerError(context, errors.New("failed to generate key pair"))
+	}
 	accounts, err := w.getAccounts(key)
 	if err != nil {
 		internalServerError(context, errors.New("failed to derive account"))

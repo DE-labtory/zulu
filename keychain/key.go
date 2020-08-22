@@ -2,6 +2,7 @@ package keychain
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
 	"strings"
@@ -19,27 +20,44 @@ type Key struct {
 type KeyGenerator struct {
 }
 
+// NewKey generates ECDSA key pair with its unique id which derived from its public key
+func NewKey(priv *ecdsa.PrivateKey) (key Key, err error) {
+	pubWithPrefix := crypto.FromECDSAPub(&priv.PublicKey)
+	// Exclude the first byte which indicates if this public key is compressed or uncompressed
+	pub := pubWithPrefix[1:65]
+
+	id, err := DeriveID(pub)
+	if err != nil {
+		return key, err
+	}
+
+	return Key{
+		ID:         id,
+		PrivateKey: crypto.FromECDSA(priv),
+		PublicKey:  pub,
+	}, nil
+}
+
 func NewKeyGenerator() KeyGenerator {
 	return KeyGenerator{}
 }
 
-func (k *KeyGenerator) Generate() Key {
-	keyPair, _ := crypto.GenerateKey()
-	pub := crypto.FromECDSAPub(&keyPair.PublicKey)
-	// Exclude the first byte which indicates if this public key is compressed or uncompressed
-	pub = pub[1:65]
-
-	return Key{ID: DeriveID(pub),
-		PrivateKey: crypto.FromECDSA(keyPair),
-		PublicKey:  pub,
+// Generate creates new Key instance
+func (g *KeyGenerator) Generate() (key Key, err error) {
+	keyPair, err := crypto.GenerateKey()
+	if err != nil {
+		return key, err
 	}
+
+	k, err := NewKey(keyPair)
+	if err != nil {
+		return key, err
+	}
+	return k, nil
 }
 
-func DeriveID(pub []byte) string {
-	return hex.EncodeToString(crypto.Keccak256(pub))
-}
-
-func ValidateKey(k Key) error {
+// ValidateKey checks if a Key satisfies cryptographic binding
+func (k *Key) ValidateKey() error {
 	// Validate if id contains only hex string
 	if _, err := hex.DecodeString(k.ID); err != nil {
 		return err
@@ -56,14 +74,27 @@ func ValidateKey(k Key) error {
 
 	raw := k.PrivateKey
 	priv, _ := crypto.ToECDSA(raw)
-	pub := crypto.FromECDSAPub(&priv.PublicKey)
-	if !bytes.Equal(k.PublicKey, pub[1:65]) {
+	pubWithPrefix := crypto.FromECDSAPub(&priv.PublicKey)
+	pub := pubWithPrefix[1:65]
+	if !bytes.Equal(k.PublicKey, pub) {
 		return errors.New("invalid key pair")
 	}
 
-	id := DeriveID(k.PublicKey)
+	id, err := DeriveID(pub)
+	if err != nil {
+		return err
+	}
 	if strings.Compare(k.ID, id) != 0 {
 		return errors.New("invalid key id")
 	}
 	return nil
+}
+
+// DeriveID generates unique Key's id from its public key
+func DeriveID(publicKey []byte) (id string, err error) {
+	if publicKey == nil {
+		return id, errors.New("public key is empty")
+	}
+	id = hex.EncodeToString(crypto.Keccak256(publicKey))
+	return id, nil
 }

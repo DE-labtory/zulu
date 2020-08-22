@@ -3,35 +3,17 @@ package keychain
 import (
 	"testing"
 
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerate(t *testing.T) {
 	// when
 	g := NewKeyGenerator()
-	key := g.Generate()
-	msg := crypto.Keccak256([]byte("foo"))
+	key, err := g.Generate()
+	assert.NoError(t, err)
 
-	// then
-	priv, err := crypto.ToECDSA(key.PrivateKey)
-	if err != nil {
-		t.Errorf("private key is invalid: %v", err)
-	}
-
-	sig, err := crypto.Sign(msg, priv)
-	if err != nil {
-		t.Errorf("sign error: %v", err)
-	}
-
-	pub1, err := crypto.SigToPub(msg, sig)
-	if err != nil {
-		t.Errorf("derive public key from signatrue error: %v", err)
-	}
-	pub2 := crypto.FromECDSAPub(pub1)
-
-	// result
-	assert.Equal(t, pub2[1:65], key.PublicKey)
+	err = key.ValidateKey()
+	assert.NoError(t, err)
 
 }
 
@@ -56,7 +38,8 @@ func TestDeriveID(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ID := DeriveID(test.pub)
+		ID, err := DeriveID(test.pub)
+		assert.NoError(t, err)
 		assert.Equal(t, ID, test.ID)
 	}
 }

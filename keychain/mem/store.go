@@ -17,7 +17,7 @@ func NewKeyStore() KeyStore {
 }
 
 func (ks *KeyStore) Store(k keychain.Key) error {
-	if err := keychain.ValidateKey(k); err != nil {
+	if err := k.ValidateKey(); err != nil {
 		return err
 	}
 

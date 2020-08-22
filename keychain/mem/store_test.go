@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/DE-labtory/zulu/keychain"
-	"github.com/go-playground/assert/v2"
+	"github.com/stretchr/testify/assert"
 )
 
 var tests = []struct {
@@ -175,16 +175,13 @@ func TestStoreKeyFromGenerator(t *testing.T) {
 	ks := NewKeyStore()
 	g := keychain.NewKeyGenerator()
 
-	k := g.Generate()
+	k, err := g.Generate()
+	assert.NoError(t, err)
 
-	err := ks.Store(k)
-	if err != nil {
-		t.Error("storing key from key generator failed: ", err)
-	}
+	err = ks.Store(k)
+	assert.NoError(t, err)
 	storedKey, err := ks.Get(k.ID)
-	if err != nil {
-		t.Error("retrieve key failed: ", err)
-	}
+	assert.NoError(t, err)
 
 	assert.Equal(t, storedKey, k)
 }
