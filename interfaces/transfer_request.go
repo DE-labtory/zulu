@@ -6,6 +6,6 @@ type TransferRequest struct {
 	To       string     `json:"to"`
 	Amount   string     `json:"amount"`
 	Password string     `json:"password"`
-	Coin     types.Coin `json:"coin"`
+	CoinId   string     `json:"coinId"`
 	Meta     types.Meta `json:"meta"`
 }

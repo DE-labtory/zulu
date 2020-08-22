@@ -31,16 +31,16 @@ func (c *CoinApi) GetCoins(context *gin.Context) {
 }
 
 func (c *CoinApi) GetCoin(context *gin.Context) {
-	var request struct {
+	var pathParams struct {
 		ID string `uri:"id" binding:"required"`
 	}
 
-	if err := context.ShouldBindUri(&request); err != nil {
+	if err := context.ShouldBindUri(&pathParams); err != nil {
 		badRequestError(context, errors.New("path variable :id does not exists"))
 		return
 	}
 
-	service, err := c.resolver.Resolve(request.ID)
+	service, err := c.resolver.Resolve(pathParams.ID)
 	if err != nil {
 		badRequestError(context, err)
 		return
