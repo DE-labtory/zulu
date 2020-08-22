@@ -1,13 +1,13 @@
 package eth
 
 import (
-	"errors"
 	"github.com/DE-labtory/zulu/account/ethereum"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
-	"math/big"
 )
+
+const defaultDecimal = 18
 
 type Service struct {
 	network            types.Network
@@ -40,10 +40,9 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 		return types.Transaction{}, err
 	}
 
-	value := new(big.Int)
-	value, ok := value.SetString(amount, 10)
-	if !ok {
-		return types.Transaction{}, errors.New("invalid amount format")
+	value, err := ethereum.ApplyDecimal(amount, defaultDecimal)
+	if err != nil {
+		return types.Transaction{}, nil
 	}
 
 	rawTx, err := s.transactionBuilder.Build(
