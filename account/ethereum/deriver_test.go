@@ -29,8 +29,10 @@ func TestDeriver_DeriveAccount_eth(t *testing.T) {
 		PublicKey: []byte("��u�������\f\n���yi�D�0*�sh4m7%yy�{44���(U�do7��S����������"),
 	}
 
+	client := NewGethClient(eth.Blockchain.Network)
+	deriver := NewDeriver(eth, client)
+
 	// when
-	deriver := NewDeriver(eth)
 	account, err := deriver.DeriveAccount(key)
 
 	// then
