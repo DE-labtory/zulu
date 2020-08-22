@@ -3,6 +3,7 @@ package ethereum
 import (
 	"math/big"
 
+	"github.com/DE-labtory/zulu/conf"
 	"github.com/DE-labtory/zulu/types"
 )
 
@@ -14,12 +15,12 @@ type Params struct {
 
 var (
 	MainnetParams = Params{
-		NodeUrl:  "https://mainnet.infura.io",
+		NodeUrl:  conf.GetConfiguration().Endpoint.Ethereum.Mainnet,
 		ChainId:  big.NewInt(1),
 		GasLimit: 23000,
 	}
 	RopstenParams = Params{
-		NodeUrl:  "https://ropsten.infura.io",
+		NodeUrl:  conf.GetConfiguration().Endpoint.Ethereum.Ropsten,
 		ChainId:  big.NewInt(3),
 		GasLimit: 23000,
 	}

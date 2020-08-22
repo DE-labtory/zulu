@@ -19,3 +19,6 @@
 
 # vendor
 /vendor
+
+# config
+/conf/config.yaml
