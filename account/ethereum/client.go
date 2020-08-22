@@ -3,11 +3,12 @@ package ethereum
 import (
 	"context"
 	"encoding/hex"
+	"math/big"
+
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"math/big"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 )

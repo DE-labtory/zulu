@@ -1,8 +1,9 @@
 package erc20
 
 import (
-	"github.com/DE-labtory/zulu/account/ethereum"
 	"math/big"
+
+	"github.com/DE-labtory/zulu/account/ethereum"
 
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
