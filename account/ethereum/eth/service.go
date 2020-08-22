@@ -40,7 +40,7 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 		return types.Transaction{}, err
 	}
 
-	value, err := ethereum.ApplyDecimal(amount, defaultDecimal)
+	value, err := ethereum.ConvertWithDecimal(amount, defaultDecimal)
 	if err != nil {
 		return types.Transaction{}, nil
 	}

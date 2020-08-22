@@ -48,12 +48,12 @@ func (t *TransactionBuilder) Build(
 		payload,
 	)
 
-	privKy, err := crypto.ToECDSA(privateKey)
+	privKey, err := crypto.ToECDSA(privateKey)
 	if err != nil {
 		return "", err
 	}
 
-	signedTx, err := ethTypes.SignTx(tx, t.signer, privKy)
+	signedTx, err := ethTypes.SignTx(tx, t.signer, privKey)
 	if err != nil {
 		log.Fatal(err)
 	}
