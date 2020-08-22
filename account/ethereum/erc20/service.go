@@ -2,10 +2,11 @@ package erc20
 
 import (
 	"encoding/hex"
+	"math/big"
+
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/common"
-	"math/big"
 )
 
 type Service struct {

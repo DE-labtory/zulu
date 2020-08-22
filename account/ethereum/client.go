@@ -1,8 +1,9 @@
 package ethereum
 
 import (
-	"github.com/ethereum/go-ethereum/ethclient"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type Client interface {
@@ -14,5 +15,5 @@ type GethClient struct {
 }
 
 func (c *GethClient) BalanceAt(address string, blockNumber *big.Int) (*big.Int, error) {
-	return 0, nil
+	return nil, nil
 }
