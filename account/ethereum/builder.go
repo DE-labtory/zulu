@@ -6,8 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"log"
-
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethTypes "github.com/ethereum/go-ethereum/core/types"
@@ -55,7 +53,7 @@ func (t *TransactionBuilder) Build(
 
 	signedTx, err := ethTypes.SignTx(tx, t.signer, privKey)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	ts := ethTypes.Transactions{signedTx}

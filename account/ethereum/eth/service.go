@@ -15,9 +15,8 @@ type Service struct {
 	client             ethereum.Client
 }
 
-func NewService(network types.Network) *Service {
+func NewService(network types.Network, client ethereum.Client) *Service {
 	txBuilder := ethereum.NewTransactionBuilder(ethTypes.NewEIP155Signer(ethereum.Supplier[network].ChainId))
-	client := ethereum.NewGethClient(network)
 	return &Service{
 		network:            network,
 		transactionBuilder: *txBuilder,

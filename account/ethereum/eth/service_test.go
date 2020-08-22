@@ -2,6 +2,7 @@ package eth
 
 import (
 	"crypto/ecdsa"
+	"math/big"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -10,6 +11,25 @@ import (
 	"github.com/DE-labtory/zulu/types"
 	"github.com/ethereum/go-ethereum/crypto"
 )
+
+type MockClient struct {
+}
+
+func (c *MockClient) BalanceAt(address string) (*big.Int, error) {
+	return big.NewInt(0), nil
+}
+
+func (c *MockClient) NonceAt(address string) (uint64, error) {
+	return 0, nil
+}
+
+func (c *MockClient) SendTransaction(rawTransaction string) (string, error) {
+	return "transactionHash", nil
+}
+
+func (c *MockClient) SuggestGasPrice() (*big.Int, error) {
+	return big.NewInt(0), nil
+}
 
 func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {
 	privateKey, err := crypto.HexToECDSA("9ca9700d14db691586ace71b25fe9973f1d2e0dd874e02e3d2d994ea7594f3e6")
@@ -20,8 +40,7 @@ func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {
 }
 
 func TestService_Transfer(t *testing.T) {
-	service := NewService(types.Ropsten)
-
+	service := NewService(types.Ropsten, &MockClient{})
 	privKey, err := loadDefaultPrivateKey()
 	if err != nil {
 		t.Fatal(err)
@@ -33,7 +52,6 @@ func TestService_Transfer(t *testing.T) {
 	}
 
 	tx, err := service.Transfer(key, "0x33ffe564A61d48408b5b8Db0c112e7Cc79d023a5", "0.000001")
-	if assert.NoError(t, err) {
-		t.Logf("transaction hash %s", tx.TxHash)
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "transactionHash", tx.TxHash)
 }

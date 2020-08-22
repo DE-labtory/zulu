@@ -19,7 +19,7 @@ var (
 		GasLimit: 23000,
 	}
 	RopstenParams = Params{
-		NodeUrl:  "https://ropsten.infura.io/v3/4feb1e5949df453fa6326d4328fe5b80",
+		NodeUrl:  "https://ropsten.infura.io",
 		ChainId:  big.NewInt(3),
 		GasLimit: 23000,
 	}
