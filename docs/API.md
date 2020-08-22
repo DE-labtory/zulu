@@ -116,7 +116,7 @@ Show wallets
     ```json
     [{
         "id": "e372988fb3b2108",
-        "addresses": [
+        "accounts": [
             {
                 "address": "0x3a065000ab4183c6bf581dc1e55a605455fc6d61",
                 "coin": {
@@ -185,7 +185,6 @@ Create a wallet
     ```json
     {
         "id": "e372988fb3b2108",
-        "scheme": "multiSig",
         "accounts": [
             {
                 "address": "0x3a065000ab4183c6bf581dc1e55a605455fc6d61",

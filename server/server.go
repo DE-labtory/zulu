@@ -16,6 +16,7 @@ func New() *gin.Engine {
 	r.Use(gin.Recovery())
 	// /wallets
 	r.POST("/wallets", walletApi.CreateWallet)
+	r.GET("/wallets", walletApi.GetWallets)
 	r.GET("/wallets/:id", walletApi.GetWallet)
 	r.POST("/wallets/:id/transfers", walletApi.Transfer)
 	// /coins

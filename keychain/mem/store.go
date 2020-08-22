@@ -32,3 +32,7 @@ func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 	}
 	return k, nil
 }
+
+func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
+	panic("should implement")
+}
