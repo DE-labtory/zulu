@@ -237,23 +237,22 @@ func TestGetAll(t *testing.T) {
 	var expected []keychain.Key
 
 	// case: empty key store
-	_, err := ks.GetAll()
-	assert.EqualError(t, err, "key store is empty")
+	keys := ks.GetAll()
+	assert.ElementsMatch(t, keys, expected)
 
 	// case: key store has 1 key-value pair
-	err = ks.Store(tests[0].key)
+	err := ks.Store(tests[0].key)
 	expected = append(expected, tests[0].key)
 	assert.NoError(t, err)
 
-	keys, err := ks.GetAll()
-	assert.NoError(t, err)
+	keys = ks.GetAll()
 	assert.ElementsMatch(t, keys, expected)
 
 	// case: key store has 2 key-value pair
 	err = ks.Store(tests[1].key)
 	expected = append(expected, tests[1].key)
-
-	keys, err = ks.GetAll()
 	assert.NoError(t, err)
+
+	keys = ks.GetAll()
 	assert.ElementsMatch(t, keys, expected)
 }
