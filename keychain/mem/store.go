@@ -33,11 +33,11 @@ func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 	return k, nil
 }
 
-func (ks *KeyStore) GetAll() []keychain.Key {
+func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
 	var keys []keychain.Key
 
 	for _, v := range ks.keys {
 		keys = append(keys, v)
 	}
-	return keys
+	return keys, nil
 }
