@@ -40,10 +40,19 @@ func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {
 }
 
 func TestService_Transfer(t *testing.T) {
+	evt := types.Coin{
+		Id: "1",
+		Blockchain: types.Blockchain{
+			Platform: types.Ethereum,
+			Network:  types.Ropsten,
+		},
+		Symbol:   "EVT",
+		Decimals: 18,
+		Meta:     nil,
+	}
 	service := NewService(
-		types.Ropsten,
+		evt,
 		&MockClient{},
-		18,
 		"0x0d4c27c49906208fbd9a9f3a43c63ccbd089f3bf", // EVT
 	)
 
@@ -60,4 +69,5 @@ func TestService_Transfer(t *testing.T) {
 	tx, err := service.Transfer(key, "0x33ffe564A61d48408b5b8Db0c112e7Cc79d023a5", "0.00001")
 	assert.NoError(t, err)
 	assert.Equal(t, "transactionHash", tx.TxHash)
+	t.Log(tx.TxHash)
 }
