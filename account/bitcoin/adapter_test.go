@@ -1,16 +1,26 @@
-package node_test
+package bitcoin_test
 
 import (
 	"testing"
 
-	"github.com/DE-labtory/zulu/types"
+	"github.com/DE-labtory/zulu/account/bitcoin"
+	"github.com/DE-labtory/zulu/account/bitcoin/chaincfg"
+	"github.com/btcsuite/btcutil"
 
-	"github.com/DE-labtory/zulu/account/bitcoin/node"
+	"github.com/DE-labtory/zulu/types"
 )
 
 func TestAdapter_ListUTXO(t *testing.T) {
-	a := node.NewAdapter(types.Testnet)
-	utxos, err := a.ListUTXO("muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY")
+	a := bitcoin.NewAdapter(types.Testnet)
+	addr, err := btcutil.DecodeAddress("muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY", chaincfg.Supplier[types.Testnet].Spec)
+	if err != nil {
+		t.Fatalf("failed to decode address: %v", err)
+	}
+
+	utxos, err := a.ListUTXO(bitcoin.Address{
+		AddressPubKeyHash: addr.(*btcutil.AddressPubKeyHash),
+		Network:           types.Testnet,
+	})
 	if err != nil {
 		t.Fatalf("error when list utxos: %s", err)
 	}
@@ -26,7 +36,7 @@ func TestAdapter_ListUTXO(t *testing.T) {
 }
 
 func TestAdapter_EstimateFees(t *testing.T) {
-	a := node.NewAdapter(types.Testnet)
+	a := bitcoin.NewAdapter(types.Testnet)
 	estimate, err := a.EstimateFees()
 	if err != nil {
 		t.Fatalf("error when get estimates: %s", err)

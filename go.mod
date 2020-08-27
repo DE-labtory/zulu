@@ -1,11 +1,11 @@
 module github.com/DE-labtory/zulu
 
-go 1.14
+go 1.12
 
 require (
 	github.com/btcsuite/btcd v0.20.1-beta
 	github.com/btcsuite/btcutil v1.0.2
-	github.com/ethereum/go-ethereum v1.9.19
+	github.com/ethereum/go-ethereum v1.9.16
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/assert/v2 v2.0.1 // indirect
 	github.com/go-playground/validator/v10 v10.3.0 // indirect
@@ -18,12 +18,4 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/stretchr/testify v1.6.1
 	github.com/syndtr/goleveldb v1.0.1-0.20190923125748-758128399b1d
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
-	golang.org/x/sys v0.0.0-20200724161237-0e2f3a69832c // indirect
-	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/tools v0.0.0-20200821200730-1e23e48ab93b // indirect
-	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
-	gopkg.in/yaml.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )

@@ -1,4 +1,4 @@
-package node
+package bitcoin
 
 import (
 	"encoding/json"
@@ -12,7 +12,7 @@ import (
 )
 
 type Adapter interface {
-	ListUTXO(addr string) ([]UTXO, error)
+	ListUTXO(addr Address) ([]UTXO, error)
 	EstimateFees() (float64, error)
 }
 
@@ -26,8 +26,8 @@ func NewAdapter(network types.Network) *adapter {
 	}
 }
 
-func (a *adapter) ListUTXO(addr string) ([]UTXO, error) {
-	return a.httpClient.ListUTXO(addr)
+func (a *adapter) ListUTXO(addr Address) ([]UTXO, error) {
+	return a.httpClient.ListUTXO(addr.EncodeAddress())
 }
 
 func (a *adapter) EstimateFees() (float64, error) {
@@ -42,7 +42,7 @@ func (a *adapter) EstimateFees() (float64, error) {
 type UTXO struct {
 	Txid  string `json:"txid"`
 	Vout  int    `json:"vout"`
-	Value int    `json:"value"`
+	Value int64  `json:"value"`
 }
 
 type httpClient struct {
