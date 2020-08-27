@@ -1,53 +1,51 @@
 package bitcoin
 
 import (
-	"github.com/DE-labtory/zulu/account/bitcoin/node"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 )
 
 type bitcoinType struct {
 	network types.Network
-	node    node.Adapter
+	node    Adapter
 }
 
 func NewService(network types.Network) *bitcoinType {
 	return &bitcoinType{
 		network: network,
-		node:    node.NewAdapter(network),
+		node:    NewAdapter(network),
 	}
 }
 
 func (b *bitcoinType) DeriveAccount(key keychain.Key) (types.Account, error) {
-	privkey, err := GetPrivKey(key)
+	addr, err := NewAddress(key, b.network)
 	if err != nil {
 		return types.Account{}, err
 	}
-	addr, err := privkey.GetAddress(b.network)
+	bal, err := b.Balance(*addr)
 	if err != nil {
 		return types.Account{}, err
 	}
-	return types.Account{
-		Address: addr.EncodeAddress(),
-		Coin:    Coin(b.network),
-		Balance: AmountZero.ToDecimal(),
-	}, nil
+	return addr.ToAccount(bal), nil
 }
 
 // TODO: implement me
 func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
-	acc, err := b.DeriveAccount(key)
-	if err != nil {
-		return types.Transaction{}, nil
-	}
-	// utxo
-	_, err = b.node.ListUTXO(acc.Address)
-	if err != nil {
-		return types.Transaction{}, nil
-	}
 	return types.Transaction{}, nil
 }
 
 func (b *bitcoinType) GetInfo() types.Coin {
 	return Coin(b.network)
+}
+
+func (b *bitcoinType) Balance(addr Address) (Amount, error) {
+	utxos, err := b.node.ListUTXO(addr)
+	if err != nil {
+		return Amount{}, err
+	}
+	var value int64
+	for _, u := range utxos {
+		value += u.Value
+	}
+	return NewAmount(value), nil
 }

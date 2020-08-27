@@ -1,7 +1,8 @@
 package bitcoin
 
 import (
-	"math"
+	"fmt"
+	"math/big"
 	"strconv"
 
 	"github.com/DE-labtory/zulu/types"
@@ -21,33 +22,32 @@ func (au AmountUnit) Int() int {
 	return int(au)
 }
 
-type Amount int64
-
-const (
-	AmountZero = Amount(0)
-	AmountOne  = Amount(1)
-)
-
-func NewAmount(i int) Amount {
-	return Amount(int64(i) * int64(math.Pow10(int(Decimal))))
+type Amount struct {
+	value *big.Int
 }
 
-// TODO: implement me
-func (a Amount) Add(i Amount) Amount {
-	return 0
+func NewAmount(i int64) Amount {
+	return Amount{
+		value: big.NewInt(i),
+	}
 }
 
-// TODO: implement me
-func (a Amount) Sub(i Amount) Amount {
-	return 0
+func ParseAmount(i string) (Amount, error) {
+	v, ok := new(big.Int).SetString(i, 10)
+	if !ok {
+		return Amount{}, fmt.Errorf("invalid amount: %s", i)
+	}
+	return Amount{
+		value: v,
+	}, nil
 }
 
 func (a Amount) ToDecimal() string {
-	return strconv.FormatInt(int64(a), 10)
+	return strconv.FormatInt(a.value.Int64(), 10)
 }
 
 func (a Amount) ToHex() string {
-	return strconv.FormatInt(int64(a), 16)
+	return "0x" + strconv.FormatInt(a.value.Int64(), 16)
 }
 
 func Coin(network types.Network) types.Coin {
