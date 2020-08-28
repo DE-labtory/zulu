@@ -1,11 +1,12 @@
 package leveldb
 
 import (
-	"encoding/json"
+	"encoding/hex"
 	"errors"
 
 	"github.com/DE-labtory/zulu/db/leveldb"
 	"github.com/DE-labtory/zulu/keychain"
+	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,11 +19,9 @@ type KeyStore struct {
 }
 
 func (ks *KeyStore) Store(k keychain.Key) error {
-	rawData, err := json.Marshal(k)
-	if err != nil {
-		return err
-	}
-	err = ks.handle.Put([]byte(k.ID), rawData, true)
+	rawData := marshalKey(k)
+
+	err := ks.handle.Put([]byte(k.ID), rawData, true)
 	if err != nil {
 		return err
 	}
@@ -45,7 +44,7 @@ func (ks *KeyStore) Get(id string) (keychain.Key, error) {
 	}
 
 	// check unmarshal data
-	err = json.Unmarshal(rawData, &k)
+	k, err = unmarshalKey(rawData)
 	if err != nil {
 		logrus.Error("error while unmarshal key :" + id + ", in level db key store")
 		return k, err
@@ -62,8 +61,7 @@ func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
 		key := iter.Key()
 		rawData := iter.Value()
 
-		var k keychain.Key
-		err := json.Unmarshal(rawData, &k)
+		k, err := unmarshalKey(rawData)
 		if err != nil {
 			logrus.Error("error while unmarshal key :" + string(key) + ", in level db key store")
 			continue
@@ -73,4 +71,22 @@ func (ks *KeyStore) GetAll() ([]keychain.Key, error) {
 	}
 
 	return keys, nil
+}
+
+func marshalKey(k keychain.Key) []byte {
+	return crypto.FromECDSA(&k.PrivateKey)
+}
+
+func unmarshalKey(b []byte) (k keychain.Key, err error) {
+	privKey, err := crypto.ToECDSA(b)
+	if err != nil {
+		logrus.Error("error while parsing private key :" + hex.EncodeToString(b) + ", in level db key store")
+		return k, err
+	}
+	id, _ := keychain.DeriveID(*privKey)
+
+	return keychain.Key{
+		ID:         id,
+		PrivateKey: *privKey,
+	}, nil
 }

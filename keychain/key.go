@@ -1,7 +1,6 @@
 package keychain
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 	"encoding/hex"
 	"errors"
@@ -12,29 +11,26 @@ import (
 
 // Key is essentially a public and private key pair based on ECDSA which uses the secp256k1 curve
 type Key struct {
+	// ID is 64 character long string which is keccack hash of Key's public key
 	ID         string
-	PrivateKey []byte
-	PublicKey  []byte
+	PrivateKey ecdsa.PrivateKey
 }
 
 type KeyGenerator struct {
 }
 
 // NewKey generates ECDSA key pair with its unique id which derived from its public key
-func NewKey(priv *ecdsa.PrivateKey) (key Key, err error) {
-	pubWithPrefix := crypto.FromECDSAPub(&priv.PublicKey)
-	// Exclude the first byte which indicates if this public key is compressed or uncompressed
-	pub := pubWithPrefix[1:65]
-
-	id, err := DeriveID(pub)
-	if err != nil {
-		return key, err
+func NewKey(priv ecdsa.PrivateKey) (key Key, err error) {
+	var empty ecdsa.PrivateKey
+	if priv == empty {
+		return key, errors.New("`Key` generation failed because private key is empty")
 	}
+
+	id, _ := DeriveID(priv)
 
 	return Key{
 		ID:         id,
-		PrivateKey: crypto.FromECDSA(priv),
-		PublicKey:  pub,
+		PrivateKey: priv,
 	}, nil
 }
 
@@ -44,12 +40,12 @@ func NewKeyGenerator() KeyGenerator {
 
 // Generate creates new Key instance
 func (g *KeyGenerator) Generate() (key Key, err error) {
-	keyPair, err := crypto.GenerateKey()
+	priv, err := crypto.GenerateKey()
 	if err != nil {
 		return key, err
 	}
 
-	k, err := NewKey(keyPair)
+	k, err := NewKey(*priv)
 	if err != nil {
 		return key, err
 	}
@@ -65,22 +61,8 @@ func (k *Key) ValidateKey() error {
 	if len(k.ID) != 64 {
 		return errors.New("length of key id should be 64")
 	}
-	if len(k.PrivateKey) != 32 {
-		return errors.New("length of private key should be 32")
-	}
-	if len(k.PublicKey) != 64 {
-		return errors.New("length of public key should be 64")
-	}
 
-	raw := k.PrivateKey
-	priv, _ := crypto.ToECDSA(raw)
-	pubWithPrefix := crypto.FromECDSAPub(&priv.PublicKey)
-	pub := pubWithPrefix[1:65]
-	if !bytes.Equal(k.PublicKey, pub) {
-		return errors.New("invalid key pair")
-	}
-
-	id, err := DeriveID(pub)
+	id, err := DeriveID(k.PrivateKey)
 	if err != nil {
 		return err
 	}
@@ -91,10 +73,11 @@ func (k *Key) ValidateKey() error {
 }
 
 // DeriveID generates unique Key's id from its public key
-func DeriveID(publicKey []byte) (id string, err error) {
-	if publicKey == nil {
+func DeriveID(priv ecdsa.PrivateKey) (id string, err error) {
+	pubKey := crypto.FromECDSAPub(&priv.PublicKey)
+	if pubKey == nil {
 		return id, errors.New("public key is empty")
 	}
-	id = hex.EncodeToString(crypto.Keccak256(publicKey))
+	id = hex.EncodeToString(crypto.Keccak256(pubKey))
 	return id, nil
 }
