@@ -34,6 +34,10 @@ func NewKey(priv ecdsa.PrivateKey) (key Key, err error) {
 	}, nil
 }
 
+func (k *Key) GetPrivateKey() []byte {
+	return crypto.FromECDSA(&k.PrivateKey)
+}
+
 func NewKeyGenerator() KeyGenerator {
 	return KeyGenerator{}
 }

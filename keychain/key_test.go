@@ -18,6 +18,19 @@ func TestGenerate(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestGetPrivateKey(t *testing.T) {
+	// when
+	g := NewKeyGenerator()
+	key, err := g.Generate()
+	assert.NoError(t, err)
+
+	binaryDump := key.GetPrivateKey()
+
+	priv, err := crypto.ToECDSA(binaryDump)
+	assert.NoError(t, err)
+	assert.Equal(t, key.PrivateKey, *priv)
+}
+
 func TestDeriveID(t *testing.T) {
 	tests := []struct {
 		rawPriv []byte
