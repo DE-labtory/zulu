@@ -34,10 +34,6 @@ func NewKey(priv ecdsa.PrivateKey) (key Key, err error) {
 	}, nil
 }
 
-func (k *Key) PublicKey() ecdsa.PublicKey {
-	return k.PrivateKey.PublicKey
-}
-
 func NewKeyGenerator() KeyGenerator {
 	return KeyGenerator{}
 }
