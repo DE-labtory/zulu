@@ -42,12 +42,28 @@ func ParseAmount(i string) (Amount, error) {
 	}, nil
 }
 
+func (a Amount) Add(x Amount) Amount {
+	return NewAmount(a.value.Add(a.value, x.value).Int64())
+}
+
+func (a Amount) Sub(x Amount) Amount {
+	return NewAmount(a.value.Sub(a.value, x.value).Int64())
+}
+
 func (a Amount) ToDecimal() string {
 	return strconv.FormatInt(a.value.Int64(), 10)
 }
 
 func (a Amount) ToHex() string {
 	return "0x" + strconv.FormatInt(a.value.Int64(), 16)
+}
+
+func (a Amount) Int64() int64 {
+	return a.value.Int64()
+}
+
+func (a Amount) Compare(x Amount) int {
+	return a.value.Cmp(x.value)
 }
 
 func Coin(network types.Network) types.Coin {

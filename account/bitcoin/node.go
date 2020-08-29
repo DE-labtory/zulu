@@ -12,8 +12,8 @@ import (
 )
 
 type Adapter interface {
-	ListUTXO(addr Address) ([]UTXO, error)
-	EstimateFees() (float64, error)
+	ListUTXO(addr string) ([]Unspent, error)
+	EstimateFeeRate() (float64, error)
 }
 
 type adapter struct {
@@ -26,23 +26,19 @@ func NewAdapter(network types.Network) *adapter {
 	}
 }
 
-func (a *adapter) ListUTXO(addr Address) ([]UTXO, error) {
-	return a.httpClient.ListUTXO(addr.EncodeAddress())
+func (a *adapter) ListUTXO(addr string) ([]Unspent, error) {
+	return a.httpClient.ListUTXO(addr)
 }
 
-func (a *adapter) EstimateFees() (float64, error) {
-	estimates, err := a.httpClient.GetFeeEstimates()
+func (a *adapter) EstimateFeeRate() (float64, error) {
+	feeRates, err := a.httpClient.GetFeeRateEstimates()
 	if err != nil {
 		return 0, err
 	}
-	// TODO: Maybe we can get estimates different by confirmation number
-	return estimates["1"], nil
-}
-
-type UTXO struct {
-	Txid  string `json:"txid"`
-	Vout  int    `json:"vout"`
-	Value int64  `json:"value"`
+	if _, ok := feeRates["1"]; !ok {
+		return defaultFeeRate, nil
+	}
+	return feeRates["1"], nil
 }
 
 type httpClient struct {
@@ -57,10 +53,10 @@ func newHttpClient(baseUrl string) *httpClient {
 	}
 }
 
-func (c *httpClient) ListUTXO(addr string) ([]UTXO, error) {
+func (c *httpClient) ListUTXO(addr string) ([]Unspent, error) {
 	result, err := c.requestTemplate("GET", fmt.Sprintf("/address/%s/utxo", addr), nil,
 		func(resp []byte) (interface{}, error) {
-			var utxos []UTXO
+			var utxos []Unspent
 			if err := json.Unmarshal(resp, &utxos); err != nil {
 				return nil, err
 			}
@@ -69,10 +65,10 @@ func (c *httpClient) ListUTXO(addr string) ([]UTXO, error) {
 	if err != nil {
 		return nil, err
 	}
-	return result.([]UTXO), nil
+	return result.([]Unspent), nil
 }
 
-func (c *httpClient) GetFeeEstimates() (map[string]float64, error) {
+func (c *httpClient) GetFeeRateEstimates() (map[string]float64, error) {
 	result, err := c.requestTemplate("GET", "/fee-estimates", nil,
 		func(resp []byte) (interface{}, error) {
 			var estimates map[string]float64
