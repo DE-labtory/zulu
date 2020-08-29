@@ -13,7 +13,7 @@ type Address struct {
 	Network types.Network
 }
 
-func NewAddress(key keychain.Key, network types.Network) (*Address, error) {
+func DeriveAddress(key keychain.Key, network types.Network) (*Address, error) {
 	addrPk, err := btcutil.NewAddressPubKey(
 		key.PublicKey,
 		chaincfg.Supplier[network].Spec)

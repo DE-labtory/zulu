@@ -1,7 +1,12 @@
 package bitcoin
 
 import (
+	"bytes"
+	"encoding/hex"
 	"fmt"
+	"sync"
+
+	"github.com/btcsuite/btcd/txscript"
 
 	"github.com/DE-labtory/zulu/types"
 
@@ -73,76 +78,65 @@ type TxLock interface {
 }
 
 type memUnspentLock struct {
+	lock  sync.RWMutex
 	items map[UnspentIndex]bool
 }
 
+func NewTxLock() *memUnspentLock {
+	return &memUnspentLock{
+		lock:  sync.RWMutex{},
+		items: make(map[UnspentIndex]bool),
+	}
+}
+
 func (l *memUnspentLock) Lock(idxList []UnspentIndex) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	for _, idx := range idxList {
 		l.items[idx] = true
 	}
 }
 
 func (l *memUnspentLock) Unlock(idxList []UnspentIndex) {
+	l.lock.Lock()
+	defer l.lock.Unlock()
 	for _, idx := range idxList {
 		l.items[idx] = false
 	}
 }
 
 func (l *memUnspentLock) Locked(idx UnspentIndex) (item bool, ok bool) {
+	l.lock.RLock()
+	defer l.lock.RUnlock()
 	_, ok = l.items[idx]
 	item = l.items[idx]
 	return
 }
 
-type TxLister struct {
-	node   Adapter
-	txLock TxLock
-}
-
-func NewTxLister(node Adapter) *TxLister {
-	return &TxLister{
-		node: node,
-		txLock: &memUnspentLock{
-			items: make(map[UnspentIndex]bool),
-		},
-	}
-}
-
-func (l *TxLister) ListUnspent(addr string) ([]Unspent, error) {
-	all, err := l.node.ListUTXO(addr)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]Unspent, 0)
-	for _, utxo := range all {
-		if locked, ok := l.txLock.Locked(utxo.UnspentIndex); !locked && ok {
-			result = append(result, utxo)
-		}
-	}
-	return result, nil
-}
-
-type Tx struct{}
-
 type TxData struct {
 	*wire.MsgTx
-	OnErrAddingUTXO func(*UnspentList, error) error
+	UnspentList *UnspentList
+	Rollback    func(*UnspentList, error)
 }
 
-func EmptyTxData() *TxData {
-	return &TxData{
-		MsgTx: wire.NewMsgTx(wire.TxVersion),
-		OnErrAddingUTXO: func(*UnspentList, error) error {
-			return nil
-		},
+func NewTxData(utxoList *UnspentList, rollback func(*UnspentList, error)) (*TxData, error) {
+	txData := &TxData{
+		MsgTx:       wire.NewMsgTx(wire.TxVersion),
+		UnspentList: utxoList,
+		Rollback:    rollback,
 	}
+	if err := txData.addInputsFromUTXO(); err != nil {
+		return nil, err
+	}
+	return txData, nil
 }
 
-func (data *TxData) AddInputsFromUTXO(utxoList *UnspentList) error {
-	for _, utxo := range utxoList.Items {
+func (data *TxData) addInputsFromUTXO() error {
+	for _, utxo := range data.UnspentList.Items {
 		txHash, err := chainhash.NewHashFromStr(utxo.Txid)
 		if err != nil {
-			return data.OnErrAddingUTXO(utxoList, err)
+			data.Rollback(data.UnspentList, err)
+			return err
 		}
 		outpoint := wire.NewOutPoint(txHash, uint32(utxo.Vout))
 		txIn := wire.NewTxIn(outpoint, nil, nil)
@@ -151,7 +145,7 @@ func (data *TxData) AddInputsFromUTXO(utxoList *UnspentList) error {
 	return nil
 }
 
-func (data *TxData) AddOutputs(outputs []struct {
+func (data *TxData) AddOutputs(outputs [2]struct {
 	Address
 	Amount
 }) error {
@@ -173,49 +167,86 @@ func (data *TxData) AddOutput(addr Address, amount Amount) error {
 	return nil
 }
 
+func (data *TxData) SignFrom(wrapper *KeyWrapper, addr Address) (string, error) {
+	pkScript, err := addr.PayToAddrScript()
+	if err != nil {
+		data.Rollback(data.UnspentList, err)
+		return "", err
+	}
+	sig, err := txscript.SignatureScript(data.MsgTx, 0, pkScript, txscript.SigHashAll, wrapper.PrivateKey, true)
+	if err != nil {
+		data.Rollback(data.UnspentList, err)
+		return "", err
+	}
+	for _, txIn := range data.TxIn {
+		txIn.SignatureScript = sig
+	}
+
+	var buf bytes.Buffer
+	if err := data.MsgTx.BtcEncode(&buf, 70002, wire.WitnessEncoding); err != nil {
+		data.Rollback(data.UnspentList, err)
+		return "", err
+	}
+	return hex.EncodeToString(buf.Bytes()), nil
+}
+
 type TxService struct {
-	network  types.Network
-	txLister TxLister
-	txLock   TxLock
-	node     Adapter
+	network types.Network
+	txLock  TxLock
+	node    Adapter
+}
+
+func NewTxService(network types.Network, node Adapter) *TxService {
+	return &TxService{
+		network: network,
+		txLock:  NewTxLock(),
+		node:    node,
+	}
 }
 
 func (b *TxService) Create(addr, to Address, amount Amount) (*TxData, error) {
-	utxos, err := b.txLister.ListUnspent(addr.EncodeAddress())
+	unspents, err := b.ListUnspent(addr.EncodeAddress())
 	if err != nil {
 		return nil, err
 	}
-	fee, err := b.calcFee(len(utxos), 2)
+	fee, err := b.calcFee(len(unspents.Items), 2)
 	if err != nil {
 		return nil, err
 	}
-	utxoList := NewUnspentList(utxos)
-	if ok := utxoList.EnoughThan(amount, fee); !ok {
+	if ok := unspents.EnoughThan(amount, fee); !ok {
 		return nil, fmt.Errorf("'%s' have not enough balance: %s", addr, amount.ToDecimal())
 	}
 
-	b.txLock.Lock(utxoList.IdxList())
+	b.txLock.Lock(unspents.IdxList())
 
-	txData := EmptyTxData()
-	txData.OnErrAddingUTXO = func(utxoList *UnspentList, err error) error {
+	txData, err := NewTxData(unspents, func(utxoList *UnspentList, err error) {
 		b.txLock.Unlock(utxoList.IdxList())
-		return err
-	}
-	if err := txData.AddInputsFromUTXO(utxoList); err != nil {
+	})
+	if err != nil {
 		return nil, err
 	}
-	txData.AddOutputs([]struct {
+	txData.AddOutputs([2]struct {
 		Address
 		Amount
 	}{
+		{addr, unspents.Balance().Sub(amount).Sub(fee)},
 		{to, amount},
-		{addr, utxoList.Balance().Sub(amount).Sub(fee)},
 	})
 	return txData, nil
 }
 
-func (b *TxService) Sign() (string, error) {
-	return "", nil
+func (b *TxService) ListUnspent(addr string) (*UnspentList, error) {
+	all, err := b.node.ListUTXO(addr)
+	if err != nil {
+		return nil, err
+	}
+	result := make([]Unspent, 0)
+	for _, utxo := range all {
+		if locked, ok := b.txLock.Locked(utxo.UnspentIndex); !locked && ok {
+			result = append(result, utxo)
+		}
+	}
+	return NewUnspentList(result), nil
 }
 
 func (b *TxService) calcFee(input, output int) (Amount, error) {

@@ -10,7 +10,7 @@ import (
 )
 
 func TestNewAddress(t *testing.T) {
-	addr, err := bitcoin.NewAddress(testKey, types.Testnet)
+	addr, err := bitcoin.DeriveAddress(testKey, types.Testnet)
 	if err != nil {
 		t.Fatalf("failed to create new address: %v", err)
 	}
@@ -20,8 +20,8 @@ func TestNewAddress(t *testing.T) {
 }
 
 func TestAddress_WhenPubKeySame(t *testing.T) {
-	addr, _ := bitcoin.NewAddress(testKey, types.Testnet)
-	addr2, _ := bitcoin.NewAddress(testKey, types.Testnet)
+	addr, _ := bitcoin.DeriveAddress(testKey, types.Testnet)
+	addr2, _ := bitcoin.DeriveAddress(testKey, types.Testnet)
 	if addr.EncodeAddress() != addr2.EncodeAddress() {
 		t.Fatalf("two address with same pub key is different: %s, %s", addr.EncodeAddress(), addr2.EncodeAddress())
 	}
