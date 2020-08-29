@@ -4,6 +4,7 @@ import (
 	"github.com/DE-labtory/zulu/account/bitcoin/chaincfg"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil"
 )
 
@@ -23,6 +24,14 @@ func NewAddress(key keychain.Key, network types.Network) (*Address, error) {
 		AddressPubKeyHash: addrPk.AddressPubKeyHash(),
 		Network:           network,
 	}, nil
+}
+
+func (a *Address) PayToAddrScript() ([]byte, error) {
+	pkScript, err := txscript.PayToAddrScript(a)
+	if err != nil {
+		return nil, err
+	}
+	return pkScript, nil
 }
 
 func (a *Address) ToAccount(balance Amount) types.Account {

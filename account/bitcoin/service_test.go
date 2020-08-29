@@ -1,6 +1,7 @@
 package bitcoin_test
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/DE-labtory/zulu/keychain"
@@ -85,4 +86,16 @@ func TestBitcoinType_GetInfo(t *testing.T) {
 	if info.Decimals != bitcoin.Decimal.Int() {
 		t.Fatalf("expected decimal is 8 but got: %d", info.Decimals)
 	}
+}
+
+func TestBitcoinType_Transfer(t *testing.T) {
+	w := bitcoin.NewService(types.Testnet)
+	toAddr := "muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY"
+	amount := "3000"
+
+	tx, err := w.Transfer(testKey, toAddr, amount)
+	if err != nil {
+		t.Fatalf("failed to transfer: %v", err)
+	}
+	fmt.Println(tx)
 }

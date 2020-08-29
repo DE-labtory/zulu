@@ -7,13 +7,13 @@ import (
 
 type bitcoinType struct {
 	network types.Network
-	node    Adapter
+	lister  *TxLister
 }
 
 func NewService(network types.Network) *bitcoinType {
 	return &bitcoinType{
 		network: network,
-		node:    NewAdapter(network),
+		lister:  NewTxLister(NewAdapter(network)),
 	}
 }
 
@@ -22,7 +22,7 @@ func (b *bitcoinType) DeriveAccount(key keychain.Key) (types.Account, error) {
 	if err != nil {
 		return types.Account{}, err
 	}
-	bal, err := b.Balance(*addr)
+	bal, err := b.GetBalance(addr.EncodeAddress())
 	if err != nil {
 		return types.Account{}, err
 	}
@@ -31,6 +31,11 @@ func (b *bitcoinType) DeriveAccount(key keychain.Key) (types.Account, error) {
 
 // TODO: implement me
 func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
+	//addr, err := NewAddress(key, b.network)
+	//if err != nil {
+	//	return types.Transaction{}, err
+	//}
+
 	return types.Transaction{}, nil
 }
 
@@ -38,8 +43,9 @@ func (b *bitcoinType) GetInfo() types.Coin {
 	return Coin(b.network)
 }
 
-func (b *bitcoinType) Balance(addr Address) (Amount, error) {
-	utxos, err := b.node.ListUTXO(addr)
+// TODO: 중복 삭제
+func (b *bitcoinType) GetBalance(addr string) (Amount, error) {
+	utxos, err := b.lister.ListUnspent(addr)
 	if err != nil {
 		return Amount{}, err
 	}
