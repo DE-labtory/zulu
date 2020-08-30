@@ -57,7 +57,7 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 		s.contractAddress,
 		big.NewInt(0),
 		payload,
-		key.PrivateKey,
+		key.GetPrivateKey(),
 	)
 
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 }
 
 func (s *Service) GetInfo() types.Coin {
-	return types.Coin{}
+	return s.coin
 }
 
 func getTransferFunctionSignatrue() []byte {

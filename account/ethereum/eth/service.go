@@ -10,15 +10,15 @@ import (
 const defaultDecimal = 18
 
 type Service struct {
-	network            types.Network
+	coin               types.Coin
 	transactionBuilder ethereum.TransactionBuilder
 	client             ethereum.Client
 }
 
-func NewService(network types.Network, client ethereum.Client) *Service {
-	txBuilder := ethereum.NewTransactionBuilder(ethTypes.NewEIP155Signer(ethereum.Supplier[network].ChainId))
+func NewService(coin types.Coin, client ethereum.Client) *Service {
+	txBuilder := ethereum.NewTransactionBuilder(ethTypes.NewEIP155Signer(ethereum.Supplier[coin.Blockchain.Network].ChainId))
 	return &Service{
-		network:            network,
+		coin:               coin,
 		transactionBuilder: *txBuilder,
 		client:             client,
 	}
@@ -47,11 +47,11 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 	rawTx, err := s.transactionBuilder.Build(
 		nonce,
 		gasPrice,
-		ethereum.Supplier[s.network].GasLimit,
+		ethereum.Supplier[s.coin.Blockchain.Network].GasLimit,
 		to,
 		value,
 		nil,
-		key.PrivateKey,
+		key.GetPrivateKey(),
 	)
 
 	if err != nil {
@@ -67,5 +67,5 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 }
 
 func (s *Service) GetInfo() types.Coin {
-	return types.Coin{}
+	return s.coin
 }
