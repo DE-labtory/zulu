@@ -39,8 +39,8 @@ func loadDefaultPrivateKey() (*ecdsa.PrivateKey, error) {
 	return privateKey, nil
 }
 
-func TestService_Transfer(t *testing.T) {
-	evt := types.Coin{
+func evt() types.Coin {
+	return types.Coin{
 		Id: "1",
 		Blockchain: types.Blockchain{
 			Platform: types.Ethereum,
@@ -50,18 +50,25 @@ func TestService_Transfer(t *testing.T) {
 		Decimals: 18,
 		Meta:     nil,
 	}
-	service := NewService(
-		evt,
+}
+
+func newEvtService() *Service {
+	return NewService(
+		evt(),
 		&MockClient{},
 		"0x0d4c27c49906208fbd9a9f3a43c63ccbd089f3bf", // EVT
 	)
+}
+
+func TestService_Transfer(t *testing.T) {
+	service := newEvtService()
 
 	privKey, err := loadDefaultPrivateKey()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	key, err := keychain.NewKey(privKey)
+	key, err := keychain.NewKey(*privKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,4 +77,15 @@ func TestService_Transfer(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "transactionHash", tx.TxHash)
 	t.Log(tx.TxHash)
+}
+
+func TestService_GetInfo(t *testing.T) {
+	// given
+	service := newEvtService()
+
+	// when
+	info := service.GetInfo()
+
+	// then
+	assert.Equal(t, evt(), info)
 }
