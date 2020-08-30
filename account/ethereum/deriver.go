@@ -1,9 +1,11 @@
 package ethereum
 
 import (
+	"crypto/ecdsa"
+	"errors"
+
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -23,7 +25,10 @@ func NewDeriver(coin types.Coin, client Client) *Deriver {
 }
 
 func (d *Deriver) DeriveAccount(key keychain.Key) (types.Account, error) {
-	address := d.deriveAddress(key)
+	address, err := d.deriveAddress(key)
+	if err != nil {
+		return types.Account{}, err
+	}
 
 	balance, err := d.client.BalanceAt(address)
 	if err != nil {
@@ -37,9 +42,12 @@ func (d *Deriver) DeriveAccount(key keychain.Key) (types.Account, error) {
 	}, nil
 }
 
-func (d *Deriver) deriveAddress(key keychain.Key) string {
-	pubkeyBytes := key.PublicKey
-	keyHash := crypto.Keccak256(pubkeyBytes[1:])
-	addressBytes := common.BytesToAddress(keyHash[12:])
-	return addressBytes.String()
+func (d *Deriver) deriveAddress(key keychain.Key) (string, error) {
+	publicKey := key.PrivateKey.Public()
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		return "", errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+	}
+
+	return crypto.PubkeyToAddress(*publicKeyECDSA).String(), nil
 }

@@ -25,10 +25,6 @@ func NewService(coin types.Coin, client ethereum.Client) *Service {
 	}
 }
 
-func (s *Service) DeriveAccount(key keychain.Key) (types.Account, error) {
-	return types.Account{}, nil
-}
-
 func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
 	nonce, err := s.client.NonceAt(to)
 	if err != nil {

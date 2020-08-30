@@ -19,6 +19,9 @@ install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
 
+before_script:
+  -
+
 script:
   - 'if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then bash ./travis/run_on_pull_requests.sh; fi'
   - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then bash ./travis/run_on_non_pull_requests.sh; fi'
