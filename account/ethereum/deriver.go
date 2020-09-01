@@ -3,6 +3,7 @@ package ethereum
 import (
 	"crypto/ecdsa"
 	"errors"
+	"strings"
 
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
@@ -48,6 +49,6 @@ func (d *Deriver) deriveAddress(key keychain.Key) (string, error) {
 	if !ok {
 		return "", errors.New("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
 	}
-
-	return crypto.PubkeyToAddress(*publicKeyECDSA).String(), nil
+	address := crypto.PubkeyToAddress(*publicKeyECDSA).String()
+	return strings.ToLower(address), nil
 }

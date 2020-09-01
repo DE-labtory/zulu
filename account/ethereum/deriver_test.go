@@ -37,7 +37,7 @@ func loadDefaultPrivateKey(t *testing.T) *ecdsa.PrivateKey {
 	return privateKey
 }
 
-func TestDeriver_DeriveAccount_eth(t *testing.T) {
+func TestDeriver_DeriveAccount_Eth_Mock(t *testing.T) {
 	// given
 	eth := types.Coin{
 		Id: "1",
@@ -64,6 +64,34 @@ func TestDeriver_DeriveAccount_eth(t *testing.T) {
 	// then
 	assert.NoError(t, err)
 	assert.NotNil(t, account)
-	assert.Equal(t, "40000000000000000", account.Balance)
 	assert.Equal(t, eth, account.Coin)
+	assert.Equal(t, "40000000000000000", account.Balance)
+}
+
+func TestDeriver_DeriveAccount_Eth_Geth(t *testing.T) {
+	// given
+	eth := types.Coin{
+		Id: "1",
+		Blockchain: types.Blockchain{
+			Platform: types.Ethereum,
+			Network:  types.Ropsten,
+		},
+		Symbol:   "ETH",
+		Decimals: 18,
+		Meta:     nil,
+	}
+	ecdsaPrivateKey, _ := crypto.HexToECDSA("fdfbe5c027ab7a0e095d716a47dd4f64742c081c8bd159934d8949a88687c1cc")
+	key, _ := keychain.NewKey(*ecdsaPrivateKey)
+	ethClient := NewGethClient(eth.Blockchain.Network)
+	deriver := NewDeriver(eth, ethClient)
+
+	// when
+	account, err := deriver.DeriveAccount(key)
+
+	// then
+	assert.NoError(t, err)
+	assert.NotNil(t, account)
+	assert.Equal(t, eth, account.Coin)
+	assert.Equal(t, "0xcdf2d74c3eaab2b1a38f3f13fe7080e8a90eae0a", account.Address)
+	assert.Equal(t, "12345670000000000", account.Balance)
 }

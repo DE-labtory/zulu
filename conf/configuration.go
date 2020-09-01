@@ -29,6 +29,7 @@ func init() {
 
 func GetConfiguration() *Configuration {
 	once.Do(func() {
+		viper.AutomaticEnv()
 		viper.SetConfigFile(os.Getenv("GOPATH") + "/src/github.com/DE-labtory/zulu/conf/config.yaml")
 
 		if err := viper.ReadInConfig(); err != nil {
