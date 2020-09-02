@@ -16,9 +16,15 @@ type WalletApi struct {
 	store     keychain.Store
 }
 
-func NewWallet(resolver *account.Resolver) *WalletApi {
+func NewWallet(
+	resolver *account.Resolver,
+	generator keychain.KeyGenerator,
+	store keychain.Store,
+) *WalletApi {
 	return &WalletApi{
-		resolver: resolver,
+		resolver:  resolver,
+		store:     store,
+		generator: generator,
 	}
 }
 
@@ -79,7 +85,7 @@ func (w *WalletApi) GetWallets(context *gin.Context) {
 		return
 	}
 
-	var response []interfaces.GetWalletResponse
+	var response = []interfaces.GetWalletResponse{}
 	for _, key := range keys {
 		accounts, err := w.getAccounts(key)
 		if err != nil {
@@ -123,7 +129,7 @@ func (w *WalletApi) Transfer(context *gin.Context) {
 		return
 	}
 
-	service, err := w.resolver.Resolve(pathParams.ID)
+	service, err := w.resolver.Resolve(requestBody.CoinId)
 	if err != nil {
 		badRequestError(context, err)
 		return

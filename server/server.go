@@ -2,13 +2,19 @@ package server
 
 import (
 	"github.com/DE-labtory/zulu/account"
+	"github.com/DE-labtory/zulu/keychain"
+	"github.com/DE-labtory/zulu/keychain/leveldb"
 	"github.com/DE-labtory/zulu/server/api"
 	"github.com/gin-gonic/gin"
 )
 
 func New() *gin.Engine {
 	resolver := account.NewResolver()
-	walletApi := api.NewWallet(resolver)
+	walletApi := api.NewWallet(
+		resolver,
+		keychain.NewKeyGenerator(),
+		leveldb.NewKeyStore(".keystore"),
+	)
 	coinApi := api.NewCoin(resolver)
 
 	r := gin.New()

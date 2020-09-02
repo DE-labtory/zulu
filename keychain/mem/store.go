@@ -10,8 +10,8 @@ type KeyStore struct {
 	keys map[string]keychain.Key
 }
 
-func NewKeyStore() KeyStore {
-	return KeyStore{
+func NewKeyStore() *KeyStore {
+	return &KeyStore{
 		keys: make(map[string]keychain.Key),
 	}
 }

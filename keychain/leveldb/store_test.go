@@ -5,7 +5,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/DE-labtory/zulu/db/leveldb"
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/stretchr/testify/assert"
@@ -47,50 +46,17 @@ func convert(priv []byte) ecdsa.PrivateKey {
 
 const TestDbPath = "./test_db_path"
 
-var gracefulTestDown = func(t *testing.T, provider *leveldb.DBProvider) {
-	provider.Close()
+var gracefulTestDown = func(t *testing.T) {
 	err := os.RemoveAll(TestDbPath)
 	if err != nil {
 		t.Log(err.Error())
 	}
 }
 
-func TestKeyStore_Get(t *testing.T) {
-	// set
-
-	dbProvider := leveldb.CreateNewDBProvider(TestDbPath)
-	defer gracefulTestDown(t, dbProvider)
-	keyStoreHandle := dbProvider.GetDBHandle("keystore")
-
-	// given
-	rawData := marshalKey(keys[0])
-
-	err := keyStoreHandle.Put([]byte(keys[0].ID), rawData, true)
-	assert.NoError(t, err)
-
-	keyStore := NewKeyStore(keyStoreHandle)
-
-	// when
-	retrieveKey, err := keyStore.Get(keys[0].ID)
-
-	// then
-	assert.NoError(t, err)
-	assert.Equal(t, keys[0], retrieveKey)
-}
-
 func TestKeyStore_GetNotFound(t *testing.T) {
 	// set
-	dbProvider := leveldb.CreateNewDBProvider(TestDbPath)
-	defer gracefulTestDown(t, dbProvider)
-	keyStoreHandle := dbProvider.GetDBHandle("keystore")
-
-	// given
-	rawData := marshalKey(keys[0])
-
-	err := keyStoreHandle.Put([]byte(keys[0].ID), rawData, true)
-	assert.NoError(t, err)
-
-	keyStore := NewKeyStore(keyStoreHandle)
+	keyStore := NewKeyStore(TestDbPath)
+	defer gracefulTestDown(t)
 
 	// when
 	retrieveKey, err := keyStore.Get(keys[0].ID + "NOT_FOUND")
@@ -102,14 +68,11 @@ func TestKeyStore_GetNotFound(t *testing.T) {
 
 func TestKeyStore_Store(t *testing.T) {
 	// set
-	dbProvider := leveldb.CreateNewDBProvider(TestDbPath)
-	defer gracefulTestDown(t, dbProvider)
-	keyStoreHandle := dbProvider.GetDBHandle("keystore")
+	keyStore := NewKeyStore(TestDbPath)
+	defer gracefulTestDown(t)
 
 	// given
 	rawData := marshalKey(keys[0])
-
-	keyStore := NewKeyStore(keyStoreHandle)
 
 	// when
 	err := keyStore.Store(keys[0])
@@ -117,19 +80,16 @@ func TestKeyStore_Store(t *testing.T) {
 	// then
 	assert.NoError(t, err)
 
-	d, err := keyStoreHandle.Get([]byte(keys[0].ID))
+	d, err := keyStore.Get(keys[0].ID)
 	assert.NoError(t, err)
-	assert.Equal(t, rawData, d)
-
+	assert.Equal(t, rawData, marshalKey(d))
 }
 
 func TestKeyStore_GetAll(t *testing.T) {
 	// set
-	dbProvider := leveldb.CreateNewDBProvider(TestDbPath)
-	defer gracefulTestDown(t, dbProvider)
-	keyStoreHandle := dbProvider.GetDBHandle("keystore")
+	keyStore := NewKeyStore(TestDbPath)
+	defer gracefulTestDown(t)
 
-	keyStore := NewKeyStore(keyStoreHandle)
 	err := keyStore.Store(keys[0])
 	assert.NoError(t, err)
 

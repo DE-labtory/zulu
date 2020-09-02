@@ -13,7 +13,7 @@ type Service struct {
 	coin               types.Coin
 	transactionBuilder ethereum.TransactionBuilder
 	client             ethereum.Client
-	ethereum.Deriver
+	*ethereum.Deriver
 }
 
 func NewService(coin types.Coin, client ethereum.Client) *Service {
@@ -22,6 +22,7 @@ func NewService(coin types.Coin, client ethereum.Client) *Service {
 		coin:               coin,
 		transactionBuilder: *txBuilder,
 		client:             client,
+		Deriver:            ethereum.NewDeriver(coin, client),
 	}
 }
 

@@ -50,10 +50,10 @@ func (a *Address) PayToAddrScript() ([]byte, error) {
 	return pkScript, nil
 }
 
-func (a *Address) ToAccount(balance Amount) types.Account {
+func (a *Address) ToAccount(balance Amount, coin types.Coin) types.Account {
 	return types.Account{
 		Address: a.EncodeAddress(),
-		Coin:    Coin(a.Network),
+		Coin:    coin,
 		Balance: balance.ToDecimal(),
 	}
 }

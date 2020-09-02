@@ -10,8 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func NewKeyStore(handle *leveldb.DBHandle) *KeyStore {
-	return &KeyStore{handle: handle}
+func NewKeyStore(path string) *KeyStore {
+	dbProvider := leveldb.CreateNewDBProvider(path)
+	return &KeyStore{
+		handle: dbProvider.GetDBHandle("keychain"),
+	}
 }
 
 type KeyStore struct {
