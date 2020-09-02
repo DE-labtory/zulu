@@ -50,7 +50,7 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 	if result.Coin.Blockchain.Platform != types.Bitcoin {
 		t.Fatalf("expected blockchain platform is Bitcoin but got: %v", result.Coin.Blockchain.Platform)
 	}
-	if result.Balance != "0" {
+	if result.Balance != "1719736" {
 		t.Fatalf("expected balance is 0 but got: %s", result.Balance)
 	}
 }
