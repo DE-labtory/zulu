@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"math/big"
 	"strconv"
-
-	"github.com/DE-labtory/zulu/types"
 )
 
 // AmountUnit describes a method of converting an Amount to something
@@ -64,16 +62,4 @@ func (a Amount) Int64() int64 {
 
 func (a Amount) Compare(x Amount) int {
 	return a.value.Cmp(x.value)
-}
-
-func Coin(network types.Network) types.Coin {
-	return types.Coin{
-		Id: "1", // TODO: decide how to create
-		Blockchain: types.Blockchain{
-			Platform: types.Bitcoin,
-			Network:  network,
-		},
-		Symbol:   types.Btc,
-		Decimals: Decimal.Int(),
-	}
 }

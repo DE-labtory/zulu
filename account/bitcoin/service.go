@@ -6,12 +6,14 @@ import (
 )
 
 type bitcoinType struct {
+	coin      types.Coin
 	network   types.Network
 	txService *TxService
 }
 
-func NewService(network types.Network) *bitcoinType {
+func NewService(coin types.Coin, network types.Network) *bitcoinType {
 	return &bitcoinType{
+		coin:      coin,
 		network:   network,
 		txService: NewTxService(network, NewAdapter(network)),
 	}
@@ -26,7 +28,7 @@ func (b *bitcoinType) DeriveAccount(key keychain.Key) (types.Account, error) {
 	if err != nil {
 		return types.Account{}, err
 	}
-	return addr.ToAccount(unspents.Balance()), nil
+	return addr.ToAccount(unspents.Balance(), b.coin), nil
 }
 
 func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
@@ -59,5 +61,5 @@ func (b *bitcoinType) Transfer(key keychain.Key, to string, amount string) (type
 }
 
 func (b *bitcoinType) GetInfo() types.Coin {
-	return Coin(b.network)
+	return b.coin
 }

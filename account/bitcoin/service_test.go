@@ -30,7 +30,16 @@ func loadKeychain() keychain.Key {
 }
 
 func TestBitcoinType_DeriveAccount(t *testing.T) {
-	w := bitcoin.NewService(types.Testnet)
+	w := bitcoin.NewService(types.Coin{
+		Id: "2",
+		Blockchain: types.Blockchain{
+			Platform: types.Bitcoin,
+			Network:  types.Testnet,
+		},
+		Symbol:   types.Tbtc,
+		Decimals: bitcoin.Decimal.Int(),
+	},
+		types.Testnet)
 
 	result, err := w.DeriveAccount(loadKeychain())
 	if err != nil {
@@ -56,7 +65,16 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 }
 
 func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
-	w := bitcoin.NewService(types.Testnet)
+	w := bitcoin.NewService(types.Coin{
+		Id: "2",
+		Blockchain: types.Blockchain{
+			Platform: types.Bitcoin,
+			Network:  types.Testnet,
+		},
+		Symbol:   types.Tbtc,
+		Decimals: bitcoin.Decimal.Int(),
+	},
+		types.Testnet)
 
 	account1, err := w.DeriveAccount(loadKeychain())
 	if err != nil {
@@ -72,7 +90,16 @@ func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
 }
 
 func TestBitcoinType_GetInfo(t *testing.T) {
-	w := bitcoin.NewService(types.Testnet)
+	w := bitcoin.NewService(types.Coin{
+		Id: "1",
+		Blockchain: types.Blockchain{
+			Platform: types.Bitcoin,
+			Network:  types.Mainnet,
+		},
+		Symbol:   types.Btc,
+		Decimals: bitcoin.Decimal.Int(),
+	},
+		types.Mainnet)
 	info := w.GetInfo()
 
 	if info.Id != "1" {
@@ -81,7 +108,7 @@ func TestBitcoinType_GetInfo(t *testing.T) {
 	if info.Blockchain.Platform != types.Bitcoin {
 		t.Fatalf("expected Platform is Bitcoin but got: %s", info.Blockchain.Platform)
 	}
-	if info.Blockchain.Network != types.Testnet {
+	if info.Blockchain.Network != types.Mainnet {
 		t.Fatalf("expected Platform is Testnet but got: %s", info.Blockchain.Network)
 	}
 	if info.Symbol != types.Btc {
@@ -93,7 +120,16 @@ func TestBitcoinType_GetInfo(t *testing.T) {
 }
 
 func TestBitcoinType_Transfer(t *testing.T) {
-	w := bitcoin.NewService(types.Testnet)
+	w := bitcoin.NewService(types.Coin{
+		Id: "2",
+		Blockchain: types.Blockchain{
+			Platform: types.Bitcoin,
+			Network:  types.Testnet,
+		},
+		Symbol:   types.Tbtc,
+		Decimals: bitcoin.Decimal.Int(),
+	},
+		types.Testnet)
 	toAddr := "muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY"
 	amount := "3000"
 
