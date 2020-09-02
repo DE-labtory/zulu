@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/DE-labtory/zulu/keychain"
 
 	"github.com/btcsuite/btcutil"
@@ -14,21 +16,23 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
-// https://github.com/bitcoin/bips/blob/master/bip-0137.mediawiki
-var testKey = keychain.Key{
-	PublicKey: []byte{
-		0x02,
-		0x62, 0xf2, 0x32, 0x4e, 0x79, 0xb6, 0x78, 0x59,
-		0x7b, 0xdd, 0x7b, 0x5a, 0x48, 0xb6, 0x46, 0xdb,
-		0xdc, 0x8c, 0x7f, 0x67, 0x28, 0x33, 0xd0, 0xef,
-		0x88, 0xc7, 0x5f, 0xad, 0x69, 0xde, 0x55, 0xf0,
-	},
+func loadKeychain() keychain.Key {
+	// mruZNSFmfGwkwueYsMTWwEtHzUvLMseoVu
+	privateKey, err := crypto.HexToECDSA("9ca9700d14db691586ace71b25fe9973f1d2e0dd874e02e3d2d994ea7594f3e6")
+	if err != nil {
+		panic(err)
+	}
+	key, err := keychain.NewKey(*privateKey)
+	if err != nil {
+		panic(err)
+	}
+	return key
 }
 
 func TestBitcoinType_DeriveAccount(t *testing.T) {
 	w := bitcoin.NewService(types.Testnet)
 
-	result, err := w.DeriveAccount(testKey)
+	result, err := w.DeriveAccount(loadKeychain())
 	if err != nil {
 		t.Fatalf("error when creating account: %s", err)
 	}
@@ -54,11 +58,11 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 func TestBitcoinType_WhenPrivKeyIsSame_ThenTwoAccountIsEqual(t *testing.T) {
 	w := bitcoin.NewService(types.Testnet)
 
-	account1, err := w.DeriveAccount(testKey)
+	account1, err := w.DeriveAccount(loadKeychain())
 	if err != nil {
 		t.Fatalf("error when creating account1: %s", err)
 	}
-	account2, err := w.DeriveAccount(testKey)
+	account2, err := w.DeriveAccount(loadKeychain())
 	if err != nil {
 		t.Fatalf("error when creating account1: %s", err)
 	}
@@ -93,7 +97,7 @@ func TestBitcoinType_Transfer(t *testing.T) {
 	toAddr := "muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY"
 	amount := "3000"
 
-	tx, err := w.Transfer(testKey, toAddr, amount)
+	tx, err := w.Transfer(loadKeychain(), toAddr, amount)
 	if err != nil {
 		t.Fatalf("failed to transfer: %v", err)
 	}

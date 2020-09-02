@@ -1,8 +1,9 @@
 package bitcoin
 
 import (
+	"fmt"
+
 	"github.com/DE-labtory/zulu/account/bitcoin/chaincfg"
-	"github.com/DE-labtory/zulu/keychain"
 	"github.com/DE-labtory/zulu/types"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil"
@@ -13,9 +14,9 @@ type Address struct {
 	Network types.Network
 }
 
-func DeriveAddress(key keychain.Key, network types.Network) (*Address, error) {
+func DeriveAddress(key *KeyWrapper, network types.Network) (*Address, error) {
 	addrPk, err := btcutil.NewAddressPubKey(
-		key.PublicKey,
+		key.MarshalPubKey(),
 		chaincfg.Supplier[network].Spec)
 	if err != nil {
 		return nil, err
@@ -26,8 +27,23 @@ func DeriveAddress(key keychain.Key, network types.Network) (*Address, error) {
 	}, nil
 }
 
+func ParseAddressStr(addr string, network types.Network) (*Address, error) {
+	a, err := btcutil.DecodeAddress(addr, chaincfg.Supplier[network].Spec)
+	if err != nil {
+		return nil, err
+	}
+	addrPkHash, ok := a.(*btcutil.AddressPubKeyHash)
+	if !ok {
+		return nil, fmt.Errorf("'%s' is not AddressPubKeyHash format", addr)
+	}
+	return &Address{
+		AddressPubKeyHash: addrPkHash,
+		Network:           network,
+	}, nil
+}
+
 func (a *Address) PayToAddrScript() ([]byte, error) {
-	pkScript, err := txscript.PayToAddrScript(a)
+	pkScript, err := txscript.PayToAddrScript(a.AddressPubKeyHash)
 	if err != nil {
 		return nil, err
 	}

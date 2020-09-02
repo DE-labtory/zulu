@@ -1,6 +1,7 @@
 package bitcoin
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,6 +15,7 @@ import (
 type Adapter interface {
 	ListUTXO(addr string) ([]Unspent, error)
 	EstimateFeeRate() (float64, error)
+	SendRawTx(raw string) (TxResult, error)
 }
 
 type adapter struct {
@@ -39,6 +41,16 @@ func (a *adapter) EstimateFeeRate() (float64, error) {
 		return defaultFeeRate, nil
 	}
 	return feeRates["1"], nil
+}
+
+func (a *adapter) SendRawTx(raw string) (TxResult, error) {
+	txId, err := a.httpClient.SendRawTxData(raw)
+	if err != nil {
+		return TxResult{}, err
+	}
+	return TxResult{
+		TxId: txId,
+	}, nil
 }
 
 type httpClient struct {
@@ -81,6 +93,17 @@ func (c *httpClient) GetFeeRateEstimates() (map[string]float64, error) {
 		return nil, err
 	}
 	return result.(map[string]float64), nil
+}
+
+func (c *httpClient) SendRawTxData(raw string) (string, error) {
+	result, err := c.requestTemplate("POST", "/tx", bytes.NewBufferString(raw),
+		func(resp []byte) (interface{}, error) {
+			return string(resp), nil
+		})
+	if err != nil {
+		return "", err
+	}
+	return result.(string), nil
 }
 
 func (c *httpClient) requestTemplate(method, path string, body io.Reader,

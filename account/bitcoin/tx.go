@@ -146,7 +146,7 @@ func (data *TxData) addInputsFromUTXO() error {
 }
 
 func (data *TxData) AddOutputs(outputs [2]struct {
-	Address
+	*Address
 	Amount
 }) error {
 	for _, out := range outputs {
@@ -157,28 +157,30 @@ func (data *TxData) AddOutputs(outputs [2]struct {
 	return nil
 }
 
-func (data *TxData) AddOutput(addr Address, amount Amount) error {
+func (data *TxData) AddOutput(addr *Address, amount Amount) error {
 	pkScript, err := addr.PayToAddrScript()
 	if err != nil {
 		return err
 	}
+	fmt.Println(pkScript)
 	txOut := wire.NewTxOut(amount.Int64(), pkScript)
 	data.AddTxOut(txOut)
 	return nil
 }
 
-func (data *TxData) SignFrom(wrapper *KeyWrapper, addr Address) (string, error) {
+func (data *TxData) SignFrom(wrapper *KeyWrapper, addr *Address) (string, error) {
 	pkScript, err := addr.PayToAddrScript()
+	fmt.Println(pkScript)
 	if err != nil {
 		data.Rollback(data.UnspentList, err)
 		return "", err
 	}
-	sig, err := txscript.SignatureScript(data.MsgTx, 0, pkScript, txscript.SigHashAll, wrapper.PrivateKey, true)
-	if err != nil {
-		data.Rollback(data.UnspentList, err)
-		return "", err
-	}
-	for _, txIn := range data.TxIn {
+	for i, txIn := range data.TxIn {
+		sig, err := txscript.SignatureScript(data.MsgTx, i, pkScript, txscript.SigHashAll, wrapper.PrivateKey, true)
+		if err != nil {
+			data.Rollback(data.UnspentList, err)
+			return "", err
+		}
 		txIn.SignatureScript = sig
 	}
 
@@ -190,21 +192,31 @@ func (data *TxData) SignFrom(wrapper *KeyWrapper, addr Address) (string, error) 
 	return hex.EncodeToString(buf.Bytes()), nil
 }
 
+type TxResult struct {
+	TxId string
+}
+
+func (r TxResult) Transaction() types.Transaction {
+	return types.Transaction{
+		TxHash: r.TxId,
+	}
+}
+
 type TxService struct {
-	network types.Network
-	txLock  TxLock
+	Network types.Network
+	TxLock  TxLock
 	node    Adapter
 }
 
 func NewTxService(network types.Network, node Adapter) *TxService {
 	return &TxService{
-		network: network,
-		txLock:  NewTxLock(),
+		Network: network,
+		TxLock:  NewTxLock(),
 		node:    node,
 	}
 }
 
-func (b *TxService) Create(addr, to Address, amount Amount) (*TxData, error) {
+func (b *TxService) Create(addr, to *Address, amount Amount) (*TxData, error) {
 	unspents, err := b.ListUnspent(addr.EncodeAddress())
 	if err != nil {
 		return nil, err
@@ -217,22 +229,30 @@ func (b *TxService) Create(addr, to Address, amount Amount) (*TxData, error) {
 		return nil, fmt.Errorf("'%s' have not enough balance: %s", addr, amount.ToDecimal())
 	}
 
-	b.txLock.Lock(unspents.IdxList())
+	b.TxLock.Lock(unspents.IdxList())
 
 	txData, err := NewTxData(unspents, func(utxoList *UnspentList, err error) {
-		b.txLock.Unlock(utxoList.IdxList())
+		b.TxLock.Unlock(utxoList.IdxList())
 	})
 	if err != nil {
 		return nil, err
 	}
 	txData.AddOutputs([2]struct {
-		Address
+		*Address
 		Amount
 	}{
 		{addr, unspents.Balance().Sub(amount).Sub(fee)},
 		{to, amount},
 	})
 	return txData, nil
+}
+
+func (b *TxService) SendRaw(data string) (TxResult, error) {
+	txResult, err := b.node.SendRawTx(data)
+	if err != nil {
+		return TxResult{}, err
+	}
+	return txResult, nil
 }
 
 func (b *TxService) ListUnspent(addr string) (*UnspentList, error) {
@@ -242,9 +262,15 @@ func (b *TxService) ListUnspent(addr string) (*UnspentList, error) {
 	}
 	result := make([]Unspent, 0)
 	for _, utxo := range all {
-		if locked, ok := b.txLock.Locked(utxo.UnspentIndex); !locked && ok {
+		locked, ok := b.TxLock.Locked(utxo.UnspentIndex)
+		if !ok {
 			result = append(result, utxo)
+			continue
 		}
+		if locked {
+			continue
+		}
+		result = append(result, utxo)
 	}
 	return NewUnspentList(result), nil
 }
