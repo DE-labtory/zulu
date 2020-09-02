@@ -21,4 +21,4 @@
 /vendor
 
 # config
-/conf/config.yaml
+.env

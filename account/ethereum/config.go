@@ -2,9 +2,10 @@ package ethereum
 
 import (
 	"math/big"
+	"os"
 
-	"github.com/DE-labtory/zulu/conf"
 	"github.com/DE-labtory/zulu/types"
+	"github.com/joho/godotenv"
 )
 
 type Params struct {
@@ -13,20 +14,19 @@ type Params struct {
 	GasLimit uint64
 }
 
-var (
-	MainnetParams = Params{
-		NodeUrl:  conf.GetConfiguration().Endpoint.Ethereum.Mainnet,
+var Supplier = map[types.Network]Params{}
+
+func init() {
+	_ = godotenv.Load(os.ExpandEnv("$GOPATH/src/github.com/DE-labtory/zulu/.env"))
+
+	Supplier[types.Mainnet] = Params{
+		NodeUrl:  os.Getenv("INFURA_MAINNET_URL"),
 		ChainId:  big.NewInt(1),
 		GasLimit: 23000,
 	}
-	RopstenParams = Params{
-		NodeUrl:  conf.GetConfiguration().Endpoint.Ethereum.Ropsten,
+	Supplier[types.Ropsten] = Params{
+		NodeUrl:  os.Getenv("INFURA_ROPSTEN_URL"),
 		ChainId:  big.NewInt(3),
 		GasLimit: 23000,
 	}
-)
-
-var Supplier = map[types.Network]Params{
-	types.Mainnet: MainnetParams,
-	types.Ropsten: RopstenParams,
 }
