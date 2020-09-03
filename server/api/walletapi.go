@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/DE-labtory/zulu/account"
 	"github.com/DE-labtory/zulu/interfaces"
@@ -143,7 +144,7 @@ func (w *WalletApi) Transfer(context *gin.Context) {
 
 	transaction, err := service.Transfer(key, requestBody.To, requestBody.Amount)
 	if err != nil {
-		internalServerError(context, errors.New("failed to send transaction"))
+		internalServerError(context, errors.New(fmt.Sprintf("failed to send transaction: %s", err.Error())))
 		return
 	}
 
