@@ -257,7 +257,7 @@ Transfer coin
     
     `amount=[string]`
     
-    `coin=[object]`
+    `coinId=[string]`
     
     `password=[string]`
     
@@ -281,15 +281,7 @@ curl --request GET 'localhost:8080/wallets/3c6bf581dc1e55/transfer --data \
 '{ 
     "to": "0x3a065000ab4183c6bf581dc1e55a605455fc6d61",
     "password": "password",
-    "coin":{
-        "id": "988f08b3b21e372",
-        "blockchain": {
-            "network": "bitcoin",
-            "platform": "mainnet"
-        },
-        "symbol": "btc",
-        "decimals": 8
-    },
+    "coinId": "4",
     "balance": "21239",
     "meta": {}
 }'
