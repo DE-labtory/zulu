@@ -27,7 +27,12 @@ func NewService(coin types.Coin, client ethereum.Client) *Service {
 }
 
 func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Transaction, error) {
-	nonce, err := s.client.NonceAt(to)
+	account, err := s.DeriveAccount(key)
+	if err != nil {
+		return types.Transaction{}, err
+	}
+
+	nonce, err := s.client.NonceAt(account.Address)
 	if err != nil {
 		return types.Transaction{}, err
 	}
@@ -39,7 +44,7 @@ func (s *Service) Transfer(key keychain.Key, to string, amount string) (types.Tr
 
 	value, err := ethereum.ConvertWithDecimal(amount, defaultDecimal)
 	if err != nil {
-		return types.Transaction{}, nil
+		return types.Transaction{}, err
 	}
 
 	rawTx, err := s.transactionBuilder.Build(
