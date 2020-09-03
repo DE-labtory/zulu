@@ -98,6 +98,7 @@ func (c *httpClient) GetFeeRateEstimates() (map[string]float64, error) {
 func (c *httpClient) SendRawTxData(raw string) (string, error) {
 	result, err := c.requestTemplate("POST", "/tx", bytes.NewBufferString(raw),
 		func(resp []byte) (interface{}, error) {
+			// TODO: change response type
 			return string(resp), nil
 		})
 	if err != nil {

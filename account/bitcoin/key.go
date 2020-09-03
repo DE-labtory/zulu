@@ -1,10 +1,9 @@
 package bitcoin
 
 import (
-	"crypto/elliptic"
-
 	"github.com/DE-labtory/zulu/keychain"
 	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcutil"
 )
 
 type KeyWrapper struct {
@@ -18,5 +17,7 @@ func NewKeyWrapper(key keychain.Key) *KeyWrapper {
 }
 
 func (kw *KeyWrapper) MarshalPubKey() []byte {
-	return elliptic.Marshal(kw.PublicKey.Curve, kw.PublicKey.X, kw.PublicKey.Y)
+	_, pub := btcec.PrivKeyFromBytes(btcec.S256(), kw.PrivateKey.Serialize())
+	return btcutil.Hash160(pub.SerializeCompressed())
+	//return elliptic.Marshal(kw.PublicKey.Curve, kw.PublicKey.X, kw.PublicKey.Y)
 }

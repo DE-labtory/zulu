@@ -170,7 +170,6 @@ func (data *TxData) AddOutput(addr *Address, amount Amount) error {
 
 func (data *TxData) SignFrom(wrapper *KeyWrapper, addr *Address) (string, error) {
 	pkScript, err := addr.PayToAddrScript()
-	fmt.Println(pkScript)
 	if err != nil {
 		data.Rollback(data.UnspentList, err)
 		return "", err
@@ -280,7 +279,7 @@ func (b *TxService) calcFee(input, output int) (Amount, error) {
 	if err != nil {
 		return Amount{}, err
 	}
-	return NewAmount(int64(feeRate *
+	return NewAmount(int64(1.5 * feeRate *
 			(bytesPerInput*float64(input) + bytesPerOutput*float64(output)))),
 		nil
 }

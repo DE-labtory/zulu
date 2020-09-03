@@ -15,14 +15,14 @@ type Address struct {
 }
 
 func DeriveAddress(key *KeyWrapper, network types.Network) (*Address, error) {
-	addrPk, err := btcutil.NewAddressPubKey(
+	addrPk, err := btcutil.NewAddressPubKeyHash(
 		key.MarshalPubKey(),
 		chaincfg.Supplier[network].Spec)
 	if err != nil {
 		return nil, err
 	}
 	return &Address{
-		AddressPubKeyHash: addrPk.AddressPubKeyHash(),
+		AddressPubKeyHash: addrPk,
 		Network:           network,
 	}, nil
 }

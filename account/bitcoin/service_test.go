@@ -1,10 +1,12 @@
 package bitcoin_test
 
 import (
+	"crypto/ecdsa"
+	"encoding/hex"
 	"fmt"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/btcsuite/btcd/btcec"
 
 	"github.com/DE-labtory/zulu/keychain"
 
@@ -17,12 +19,11 @@ import (
 )
 
 func loadKeychain() keychain.Key {
-	// mruZNSFmfGwkwueYsMTWwEtHzUvLMseoVu
-	privateKey, err := crypto.HexToECDSA("9ca9700d14db691586ace71b25fe9973f1d2e0dd874e02e3d2d994ea7594f3e6")
-	if err != nil {
-		panic(err)
-	}
-	key, err := keychain.NewKey(*privateKey)
+	// momXhvmA324DdWhZC9TqFqNd9C7qszBKyn
+	keyBytes, _ := hex.DecodeString("eeb1c9cb82fa9d81008847259e7239fcae3031fea4cccc224eab3e4c009de161")
+	pvt, _ := btcec.PrivKeyFromBytes(btcec.S256(), keyBytes)
+
+	key, err := keychain.NewKey((ecdsa.PrivateKey)(*pvt))
 	if err != nil {
 		panic(err)
 	}
@@ -59,8 +60,8 @@ func TestBitcoinType_DeriveAccount(t *testing.T) {
 	if result.Coin.Blockchain.Platform != types.Bitcoin {
 		t.Fatalf("expected blockchain platform is Bitcoin but got: %v", result.Coin.Blockchain.Platform)
 	}
-	if result.Balance != "1719736" {
-		t.Fatalf("expected balance is 0 but got: %s", result.Balance)
+	if result.Balance == "0" {
+		t.Fatalf("expected balance is not 0 but got: %s", result.Balance)
 	}
 }
 
@@ -131,7 +132,7 @@ func TestBitcoinType_Transfer(t *testing.T) {
 	},
 		types.Testnet)
 	toAddr := "muQqyVnEaUPLLco4rDtsKifE2AVyXsStFY"
-	amount := "3000"
+	amount := "1"
 
 	tx, err := w.Transfer(loadKeychain(), toAddr, amount)
 	if err != nil {
